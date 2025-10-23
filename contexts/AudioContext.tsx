@@ -18,6 +18,13 @@ interface AudioContextValue {
   setTimer: (minutes: number | null) => void;
 }
 
+async function fetchAndConvertToBlob(url: string): Promise<string> {
+  const response = await fetch(url, { mode: 'cors', cache: 'force-cache' });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
+}
+
 export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(() => {
   const [sound, setSound] = useState<Sound | HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -28,6 +35,7 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
   const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimerState] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     const setupAudio = async () => {
@@ -80,108 +88,61 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
           if (Platform.OS === 'web' && sound instanceof HTMLAudioElement) {
             sound.pause();
             sound.src = '';
+            if (blobUrlRef.current) {
+              URL.revokeObjectURL(blobUrlRef.current);
+              blobUrlRef.current = null;
+            }
           } else if (sound && 'unloadAsync' in sound) {
             await sound.unloadAsync();
           }
         }
 
-        console.log('Loading sound from URL:', url);
+        console.log('[Audio] Loading:', url);
 
         if (Platform.OS === 'web') {
           const audio = new window.Audio();
           audio.loop = true;
           audio.preload = 'auto';
-          try {
-            audio.crossOrigin = 'anonymous';
-          } catch (_e) {
-            console.log('crossOrigin not settable');
-          }
+          audio.crossOrigin = 'anonymous';
 
           audio.addEventListener('loadedmetadata', () => {
             setDuration(audio.duration * 1000);
-            console.log('Audio loaded successfully:', url);
           });
 
           audio.addEventListener('timeupdate', () => {
             setPosition(audio.currentTime * 1000);
           });
 
-          audio.addEventListener('play', () => {
-            setIsPlaying(true);
+          audio.addEventListener('play', () => setIsPlaying(true));
+          audio.addEventListener('pause', () => setIsPlaying(false));
+          audio.addEventListener('error', () => {
+            console.error('[Audio] Playback error for:', url);
           });
 
-          audio.addEventListener('pause', () => {
-            setIsPlaying(false);
-          });
-
-          audio.addEventListener('error', (_e: Event) => {
-            const errorMessage = audio.error?.code === 4 
-              ? 'Audio source not supported or CORS blocked'
-              : (audio.error as any)?.message || 'Unknown audio error';
-            console.error('Audio error:', errorMessage);
-            console.error('Failed URL:', url);
-            console.error('Error code:', audio.error?.code);
-          });
-
-          audio.addEventListener('canplaythrough', () => {
-            console.log('Audio ready to play:', url);
-          });
-
-          const tryPlay = async (src: string) => {
-            return new Promise<void>(async (resolve, reject) => {
-              try {
-                audio.src = src;
-                await audio.play();
-                resolve();
-              } catch (e) {
-                reject(e);
-              }
-            });
-          };
-
-          const tryPlayViaBlob = async (src: string) => {
-            try {
-              const res = await fetch(src);
-              if (!res.ok) throw new Error(`HTTP ${res.status}`);
-              const blob = await res.blob();
-              const objectUrl = URL.createObjectURL(blob);
-              try {
-                await tryPlay(objectUrl);
-                // Revoke later to keep playing; schedule cleanup on pause/stop
-                return { objectUrl };
-              } catch (err) {
-                URL.revokeObjectURL(objectUrl);
-                throw err;
-              }
-            } catch (err) {
-              throw err;
-            }
-          };
-
-          let objectUrlToRevoke: string | null = null;
+          let blobUrl: string | null = null;
           try {
-            await tryPlay(url);
-          } catch (primaryErr) {
-            console.warn('Primary playback failed, trying fetch->blob...', primaryErr);
+            blobUrl = await fetchAndConvertToBlob(url);
+            audio.src = blobUrl;
+            await audio.play();
+            blobUrlRef.current = blobUrl;
+            console.log('[Audio] Playing via blob');
+          } catch (err) {
+            console.warn('[Audio] Blob failed, trying CORS proxy:', err);
+            if (blobUrl) URL.revokeObjectURL(blobUrl);
             try {
-              const result = await tryPlayViaBlob(url);
-              objectUrlToRevoke = result.objectUrl;
-            } catch (blobErr) {
-              console.warn('Blob playback failed, trying CORS proxy...', blobErr);
-              const proxied = `https://cors.isomorphic-git.org/${encodeURIComponent(url)}`;
-              try {
-                const result = await tryPlayViaBlob(proxied);
-                objectUrlToRevoke = result.objectUrl;
-              } catch (proxyErr) {
-                console.error('Error starting playback:', proxyErr);
-                setIsLoading(false);
-                throw proxyErr;
-              }
+              const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+              blobUrl = await fetchAndConvertToBlob(proxyUrl);
+              audio.src = blobUrl;
+              await audio.play();
+              blobUrlRef.current = blobUrl;
+              console.log('[Audio] Playing via proxy');
+            } catch (proxyErr) {
+              console.error('[Audio] All methods failed:', proxyErr);
+              if (blobUrl) URL.revokeObjectURL(blobUrl);
+              setIsLoading(false);
+              return;
             }
           }
-
-          // Keep track to revoke object URL on stop
-          (audio as any)._objectUrlToRevoke = objectUrlToRevoke;
 
           setSound(audio);
           setCurrentTrack(url);
@@ -189,16 +150,14 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
           setIsPlaying(true);
 
           if (timer) {
-            if (timerRef.current) {
-              clearTimeout(timerRef.current);
-            }
+            if (timerRef.current) clearTimeout(timerRef.current);
             timerRef.current = setTimeout(() => {
               audio.pause();
-              if ((audio as any)._objectUrlToRevoke) {
-                try { URL.revokeObjectURL((audio as any)._objectUrlToRevoke); } catch {}
-                (audio as any)._objectUrlToRevoke = null;
-              }
               audio.src = '';
+              if (blobUrlRef.current) {
+                URL.revokeObjectURL(blobUrlRef.current);
+                blobUrlRef.current = null;
+              }
               setIsPlaying(false);
               setCurrentTrack(null);
               setCurrentTitle(null);
@@ -217,9 +176,7 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
           setIsPlaying(true);
 
           if (timer) {
-            if (timerRef.current) {
-              clearTimeout(timerRef.current);
-            }
+            if (timerRef.current) clearTimeout(timerRef.current);
             timerRef.current = setTimeout(async () => {
               await newSound.stopAsync();
               await newSound.unloadAsync();
@@ -230,7 +187,7 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
           }
         }
       } catch (error) {
-        console.error('Error playing sound:', error);
+        console.error('[Audio] Error:', error);
       } finally {
         setIsLoading(false);
       }
@@ -242,10 +199,6 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
     if (sound) {
       if (Platform.OS === 'web' && sound instanceof HTMLAudioElement) {
         sound.pause();
-        if ((sound as any)._objectUrlToRevoke) {
-          try { URL.revokeObjectURL((sound as any)._objectUrlToRevoke); } catch {}
-          (sound as any)._objectUrlToRevoke = null;
-        }
         setIsPlaying(false);
       } else if (sound && 'pauseAsync' in sound) {
         await sound.pauseAsync();
@@ -259,11 +212,11 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
       if (Platform.OS === 'web' && sound instanceof HTMLAudioElement) {
         sound.pause();
         sound.currentTime = 0;
-        if ((sound as any)._objectUrlToRevoke) {
-          try { URL.revokeObjectURL((sound as any)._objectUrlToRevoke); } catch {}
-          (sound as any)._objectUrlToRevoke = null;
-        }
         sound.src = '';
+        if (blobUrlRef.current) {
+          URL.revokeObjectURL(blobUrlRef.current);
+          blobUrlRef.current = null;
+        }
         setSound(null);
         setIsPlaying(false);
         setCurrentTrack(null);
