@@ -24,7 +24,7 @@ export const sleepSounds: SleepSound[] = [
     icon: 'waves',
     color: '#3B82F6',
     audioUrl:
-      'https://cdn.pixabay.com/download/audio/2023/03/10/audio_16e4b6f4c3.mp3?filename=ocean-waves-loop.mp3',
+      'https://cdn.pixabay.com/audio/2023/03/10/audio_16e4b6f4c3.mp3',
   },
   {
     id: 'forest',
@@ -33,7 +33,7 @@ export const sleepSounds: SleepSound[] = [
     icon: 'trees',
     color: '#10B981',
     audioUrl:
-      'https://cdn.pixabay.com/download/audio/2023/05/09/audio_6f9e66aab0.mp3?filename=forest-birds.mp3',
+      'https://cdn.pixabay.com/audio/2023/05/09/audio_6f9e66aab0.mp3',
   },
   {
     id: 'wind',
@@ -42,7 +42,7 @@ export const sleepSounds: SleepSound[] = [
     icon: 'wind',
     color: '#8B5CF6',
     audioUrl:
-      'https://cdn.pixabay.com/download/audio/2023/02/14/audio_f7cfb87e8c.mp3?filename=wind-in-trees.mp3',
+      'https://cdn.pixabay.com/audio/2023/02/14/audio_f7cfb87e8c.mp3',
   },
   {
     id: 'fire',
@@ -51,7 +51,7 @@ export const sleepSounds: SleepSound[] = [
     icon: 'flame',
     color: '#F59E0B',
     audioUrl:
-      'https://cdn.pixabay.com/download/audio/2023/03/13/audio_2f20e2f0da.mp3?filename=campfire-loop.mp3',
+      'https://cdn.pixabay.com/audio/2023/03/13/audio_2f20e2f0da.mp3',
   },
   {
     id: 'river',
@@ -60,7 +60,7 @@ export const sleepSounds: SleepSound[] = [
     icon: 'waves',
     color: '#06B6D4',
     audioUrl:
-      'https://cdn.pixabay.com/download/audio/2023/02/20/audio_3a7e4b673f.mp3?filename=stream-river.mp3',
+      'https://cdn.pixabay.com/audio/2023/02/20/audio_3a7e4b673f.mp3',
   },
   {
     id: 'night',
@@ -69,7 +69,7 @@ export const sleepSounds: SleepSound[] = [
     icon: 'trees',
     color: '#0EA5E9',
     audioUrl:
-      'https://cdn.pixabay.com/download/audio/2023/03/19/audio_c3a23f238f.mp3?filename=summer-night.mp3',
+      'https://cdn.pixabay.com/audio/2023/03/19/audio_c3a23f238f.mp3',
   },
   {
     id: 'thunder',
@@ -78,7 +78,7 @@ export const sleepSounds: SleepSound[] = [
     icon: 'cloud-rain',
     color: '#64748B',
     audioUrl:
-      'https://cdn.pixabay.com/download/audio/2023/03/01/audio_76df6b5f1e.mp3?filename=thunderstorm.mp3',
+      'https://cdn.pixabay.com/audio/2023/03/01/audio_76df6b5f1e.mp3',
   },
   {
     id: 'whitenoise',

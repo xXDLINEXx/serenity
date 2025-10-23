@@ -139,19 +139,49 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
             });
           };
 
+          const tryPlayViaBlob = async (src: string) => {
+            try {
+              const res = await fetch(src);
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              const blob = await res.blob();
+              const objectUrl = URL.createObjectURL(blob);
+              try {
+                await tryPlay(objectUrl);
+                // Revoke later to keep playing; schedule cleanup on pause/stop
+                return { objectUrl };
+              } catch (err) {
+                URL.revokeObjectURL(objectUrl);
+                throw err;
+              }
+            } catch (err) {
+              throw err;
+            }
+          };
+
+          let objectUrlToRevoke: string | null = null;
           try {
             await tryPlay(url);
           } catch (primaryErr) {
-            console.warn('Primary playback failed, trying CORS proxy...', primaryErr);
-            const proxied = `https://cors.isomorphic-git.org/${encodeURIComponent(url)}`;
+            console.warn('Primary playback failed, trying fetch->blob...', primaryErr);
             try {
-              await tryPlay(proxied);
-            } catch (proxyErr) {
-              console.error('Error starting playback:', proxyErr);
-              setIsLoading(false);
-              throw proxyErr;
+              const result = await tryPlayViaBlob(url);
+              objectUrlToRevoke = result.objectUrl;
+            } catch (blobErr) {
+              console.warn('Blob playback failed, trying CORS proxy...', blobErr);
+              const proxied = `https://cors.isomorphic-git.org/${encodeURIComponent(url)}`;
+              try {
+                const result = await tryPlayViaBlob(proxied);
+                objectUrlToRevoke = result.objectUrl;
+              } catch (proxyErr) {
+                console.error('Error starting playback:', proxyErr);
+                setIsLoading(false);
+                throw proxyErr;
+              }
             }
           }
+
+          // Keep track to revoke object URL on stop
+          (audio as any)._objectUrlToRevoke = objectUrlToRevoke;
 
           setSound(audio);
           setCurrentTrack(url);
@@ -164,6 +194,10 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
             }
             timerRef.current = setTimeout(() => {
               audio.pause();
+              if ((audio as any)._objectUrlToRevoke) {
+                try { URL.revokeObjectURL((audio as any)._objectUrlToRevoke); } catch {}
+                (audio as any)._objectUrlToRevoke = null;
+              }
               audio.src = '';
               setIsPlaying(false);
               setCurrentTrack(null);
@@ -208,6 +242,10 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
     if (sound) {
       if (Platform.OS === 'web' && sound instanceof HTMLAudioElement) {
         sound.pause();
+        if ((sound as any)._objectUrlToRevoke) {
+          try { URL.revokeObjectURL((sound as any)._objectUrlToRevoke); } catch {}
+          (sound as any)._objectUrlToRevoke = null;
+        }
         setIsPlaying(false);
       } else if (sound && 'pauseAsync' in sound) {
         await sound.pauseAsync();
@@ -221,6 +259,10 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
       if (Platform.OS === 'web' && sound instanceof HTMLAudioElement) {
         sound.pause();
         sound.currentTime = 0;
+        if ((sound as any)._objectUrlToRevoke) {
+          try { URL.revokeObjectURL((sound as any)._objectUrlToRevoke); } catch {}
+          (sound as any)._objectUrlToRevoke = null;
+        }
         sound.src = '';
         setSound(null);
         setIsPlaying(false);
