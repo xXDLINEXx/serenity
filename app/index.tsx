@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -25,6 +26,7 @@ import {
 import { healingFrequencies, HealingFrequency } from '@/constants/frequencies';
 import { sleepSounds, SleepSound } from '@/constants/sleepSounds';
 import { useAudio } from '@/contexts/AudioContext';
+import React from "react";
 
 const iconMap: Record<string, any> = {
   'cloud-rain': CloudRain,
@@ -35,6 +37,29 @@ const iconMap: Record<string, any> = {
   radio: Radio,
 };
 
+function BlurContainer({ children, style }: { children: React.ReactNode; style?: any }) {
+  if (Platform.OS === 'web') {
+    return (
+      <View
+        style={[
+          style,
+          {
+            backgroundColor: 'rgba(30, 41, 59, 0.6)',
+            ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(12px)' } as any) : {}),
+          },
+        ]}
+      >
+        {children}
+      </View>
+    );
+  }
+  return (
+    <BlurView intensity={20} tint="dark" style={style}>
+      {children}
+    </BlurView>
+  );
+}
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<'sounds' | 'frequencies'>('sounds');
@@ -42,6 +67,7 @@ export default function HomeScreen() {
   const [showTimerModal, setShowTimerModal] = useState(false);
 
   const handlePlaySound = async (id: string, url: string, title: string) => {
+    console.log('[UI] Play pressed', { id, url, title });
     if (audio.currentTrack === url && audio.isPlaying) {
       await audio.pauseSound();
     } else if (audio.currentTrack === url && !audio.isPlaying) {
@@ -51,59 +77,33 @@ export default function HomeScreen() {
     }
   };
 
-
-
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="home-screen">
       <StatusBar barStyle="light-content" />
-      <LinearGradient
-        colors={['#0F172A', '#1E293B', '#334155']}
-        style={styles.gradient}
-      >
+      <LinearGradient colors={['#0F172A', '#1E293B', '#334155']} style={styles.gradient}>
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
           <Text style={styles.headerTitle}>Sommeil & Guérison</Text>
-          <Text style={styles.headerSubtitle}>
-            Sons apaisants et fréquences sacrées
-          </Text>
+          <Text style={styles.headerSubtitle}>Sons apaisants et fréquences sacrées</Text>
         </View>
 
-        <View style={styles.tabContainer}>
+        <View style={styles.tabContainer} testID="tabs">
           <TouchableOpacity
             style={[styles.tab, activeTab === 'sounds' && styles.tabActive]}
             onPress={() => setActiveTab('sounds')}
+            testID="tab-sounds"
           >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'sounds' && styles.tabTextActive,
-              ]}
-            >
-              Sons de sommeil
-            </Text>
+            <Text style={[styles.tabText, activeTab === 'sounds' && styles.tabTextActive]}>Sons de sommeil</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'frequencies' && styles.tabActive,
-            ]}
+            style={[styles.tab, activeTab === 'frequencies' && styles.tabActive]}
             onPress={() => setActiveTab('frequencies')}
+            testID="tab-frequencies"
           >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'frequencies' && styles.tabTextActive,
-              ]}
-            >
-              Fréquences sacrées
-            </Text>
+            <Text style={[styles.tabText, activeTab === 'frequencies' && styles.tabTextActive]}>Fréquences sacrées</Text>
           </TouchableOpacity>
         </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {activeTab === 'sounds' ? (
             <>
               {sleepSounds.map((sound) => (
@@ -130,13 +130,9 @@ export default function HomeScreen() {
           <View style={styles.bottomSpacer} />
         </ScrollView>
 
-        {audio.currentTrack && (
-          <PlayerBar onTimerPress={() => setShowTimerModal(true)} />
-        )}
+        {audio.currentTrack && <PlayerBar onTimerPress={() => setShowTimerModal(true)} />}
 
-        {showTimerModal && (
-          <TimerModal onClose={() => setShowTimerModal(false)} />
-        )}
+        {showTimerModal && <TimerModal onClose={() => setShowTimerModal(false)} />}
       </LinearGradient>
     </View>
   );
@@ -147,46 +143,35 @@ function PlayerBar({ onTimerPress }: { onTimerPress: () => void }) {
   const insets = useSafeAreaInsets();
 
   return (
-    <BlurView
-      intensity={80}
-      tint="dark"
-      style={[styles.playerBar, { paddingBottom: insets.bottom + 16 }]}
-    >
+    <BlurContainer style={[styles.playerBar, { paddingBottom: insets.bottom + 16 }]}>
       <View style={styles.playerContent}>
         <View style={styles.playerInfo}>
-          <Text style={styles.playerTitle} numberOfLines={1}>
+          <Text style={styles.playerTitle} numberOfLines={1} testID="now-playing">
             {audio.currentTitle}
           </Text>
-          <Text style={styles.playerSubtitle}>
-            Lecture en boucle {audio.timer ? `• ${audio.timer} min` : ''}
-          </Text>
+          <Text style={styles.playerSubtitle}>Lecture en boucle {audio.timer ? `• ${audio.timer} min` : ''}</Text>
         </View>
         <View style={styles.playerControls}>
-          <TouchableOpacity
-            style={styles.timerButton}
-            onPress={onTimerPress}
-          >
+          <TouchableOpacity style={styles.timerButton} onPress={onTimerPress} testID="open-timer">
             <Clock size={24} color="#FFFFFF" strokeWidth={2} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.playerButton}
-            onPress={audio.isPlaying ? audio.pauseSound : () => audio.playSound(audio.currentTrack!, audio.currentTitle!)}
+            onPress={
+              audio.isPlaying
+                ? audio.pauseSound
+                : () => audio.playSound(audio.currentTrack!, audio.currentTitle!)
+            }
+            testID={audio.isPlaying ? 'pause' : 'resume'}
           >
-            {audio.isPlaying ? (
-              <Pause size={28} color="#FFFFFF" fill="#FFFFFF" />
-            ) : (
-              <Play size={28} color="#FFFFFF" fill="#FFFFFF" />
-            )}
+            {audio.isPlaying ? <Pause size={28} color="#FFFFFF" fill="#FFFFFF" /> : <Play size={28} color="#FFFFFF" fill="#FFFFFF" />}
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.stopButton}
-            onPress={audio.stopSound}
-          >
+          <TouchableOpacity style={styles.stopButton} onPress={audio.stopSound} testID="stop">
             <X size={24} color="#FFFFFF" strokeWidth={2} />
           </TouchableOpacity>
         </View>
       </View>
-    </BlurView>
+    </BlurContainer>
   );
 }
 
@@ -195,27 +180,25 @@ function TimerModal({ onClose }: { onClose: () => void }) {
   const timerOptions = [15, 30, 45, 60, 90, 120];
 
   const handleSelectTimer = (minutes: number) => {
+    console.log('[UI] Set timer', minutes);
     audio.setTimer(minutes);
     onClose();
   };
 
   const handleClearTimer = () => {
+    console.log('[UI] Clear timer');
     audio.setTimer(null);
     onClose();
   };
 
   return (
     <View style={styles.modalOverlay}>
-      <BlurView intensity={20} tint="dark" style={styles.modalBlur}>
-        <TouchableOpacity
-          style={styles.modalBackdrop}
-          onPress={onClose}
-          activeOpacity={1}
-        />
-        <View style={styles.modalContent}>
+      <BlurContainer style={styles.modalBlur}>
+        <TouchableOpacity style={styles.modalBackdrop} onPress={onClose} activeOpacity={1} />
+        <View style={styles.modalContent} testID="timer-modal">
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Minuteur de sommeil</Text>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={onClose} testID="close-timer">
               <X size={24} color="#94A3B8" />
             </TouchableOpacity>
           </View>
@@ -223,59 +206,35 @@ function TimerModal({ onClose }: { onClose: () => void }) {
             {timerOptions.map((minutes) => (
               <TouchableOpacity
                 key={minutes}
-                style={[
-                  styles.timerOption,
-                  audio.timer === minutes && styles.timerOptionActive,
-                ]}
+                style={[styles.timerOption, audio.timer === minutes && styles.timerOptionActive]}
                 onPress={() => handleSelectTimer(minutes)}
+                testID={`timer-${minutes}`}
               >
-                <Text
-                  style={[
-                    styles.timerOptionText,
-                    audio.timer === minutes && styles.timerOptionTextActive,
-                  ]}
-                >
+                <Text style={[styles.timerOptionText, audio.timer === minutes && styles.timerOptionTextActive]}>
                   {minutes} min
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
           {audio.timer && (
-            <TouchableOpacity
-              style={styles.clearButton}
-              onPress={handleClearTimer}
-            >
+            <TouchableOpacity style={styles.clearButton} onPress={handleClearTimer} testID="clear-timer">
               <Text style={styles.clearButtonText}>Désactiver le minuteur</Text>
             </TouchableOpacity>
           )}
         </View>
-      </BlurView>
+      </BlurContainer>
     </View>
   );
 }
 
-function SoundCard({
-  sound,
-  isPlaying,
-  onPlay,
-}: {
-  sound: SleepSound;
-  isPlaying: boolean;
-  onPlay: () => void;
-}) {
+function SoundCard({ sound, isPlaying, onPlay }: { sound: SleepSound; isPlaying: boolean; onPlay: () => void }) {
   const Icon = iconMap[sound.icon];
 
   return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={onPlay}
-      activeOpacity={0.8}
-    >
-      <BlurView intensity={20} tint="dark" style={styles.cardBlur}>
+    <TouchableOpacity style={styles.card} onPress={onPlay} activeOpacity={0.8} testID={`sound-card-${sound.id}`}>
+      <BlurContainer style={styles.cardBlur}>
         <View style={styles.cardContent}>
-          <View
-            style={[styles.iconContainer, { backgroundColor: sound.color }]}
-          >
+          <View style={[styles.iconContainer, { backgroundColor: sound.color }]}> 
             <Icon size={32} color="#FFFFFF" strokeWidth={2} />
           </View>
           <View style={styles.cardTextContainer}>
@@ -283,20 +242,14 @@ function SoundCard({
             <Text style={styles.cardDescription}>{sound.description}</Text>
           </View>
           <TouchableOpacity
-            style={[
-              styles.playButton,
-              isPlaying && styles.playButtonActive,
-            ]}
+            style={[styles.playButton, isPlaying && styles.playButtonActive]}
             onPress={onPlay}
+            testID={`play-sound-${sound.id}`}
           >
-            {isPlaying ? (
-              <Pause size={24} color="#FFFFFF" fill="#FFFFFF" />
-            ) : (
-              <Play size={24} color="#FFFFFF" fill="#FFFFFF" />
-            )}
+            {isPlaying ? <Pause size={24} color="#FFFFFF" fill="#FFFFFF" /> : <Play size={24} color="#FFFFFF" fill="#FFFFFF" />}
           </TouchableOpacity>
         </View>
-      </BlurView>
+      </BlurContainer>
     </TouchableOpacity>
   );
 }
@@ -311,19 +264,10 @@ function FrequencyCard({
   onPlay: () => void;
 }) {
   return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={onPlay}
-      activeOpacity={0.8}
-    >
-      <BlurView intensity={20} tint="dark" style={styles.cardBlur}>
+    <TouchableOpacity style={styles.card} onPress={onPlay} activeOpacity={0.8} testID={`frequency-card-${frequency.id}`}>
+      <BlurContainer style={styles.cardBlur}>
         <View style={styles.cardContent}>
-          <View
-            style={[
-              styles.frequencyBadge,
-              { backgroundColor: frequency.color },
-            ]}
-          >
+          <View style={[styles.frequencyBadge, { backgroundColor: frequency.color }]}>
             <Text style={styles.frequencyNumber}>{frequency.frequency}</Text>
             <Text style={styles.frequencyUnit}>Hz</Text>
           </View>
@@ -332,20 +276,14 @@ function FrequencyCard({
             <Text style={styles.cardDescription}>{frequency.description}</Text>
           </View>
           <TouchableOpacity
-            style={[
-              styles.playButton,
-              isPlaying && styles.playButtonActive,
-            ]}
+            style={[styles.playButton, isPlaying && styles.playButtonActive]}
             onPress={onPlay}
+            testID={`play-frequency-${frequency.id}`}
           >
-            {isPlaying ? (
-              <Pause size={24} color="#FFFFFF" fill="#FFFFFF" />
-            ) : (
-              <Play size={24} color="#FFFFFF" fill="#FFFFFF" />
-            )}
+            {isPlaying ? <Pause size={24} color="#FFFFFF" fill="#FFFFFF" /> : <Play size={24} color="#FFFFFF" fill="#FFFFFF" />}
           </TouchableOpacity>
         </View>
-      </BlurView>
+      </BlurContainer>
     </TouchableOpacity>
   );
 }
