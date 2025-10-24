@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -61,20 +62,15 @@ function BlurContainer({ children, style }: { children: React.ReactNode; style?:
 }
 
 export default function HomeScreen() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<'sounds' | 'frequencies'>('sounds');
   const audio = useAudio();
   const [showTimerModal, setShowTimerModal] = useState(false);
 
-  const handlePlaySound = async (id: string, url: string, title: string) => {
-    console.log('[UI] Play pressed', { id, url, title });
-    if (audio.currentTrack === url && audio.isPlaying) {
-      await audio.pauseSound();
-    } else if (audio.currentTrack === url && !audio.isPlaying) {
-      await audio.playSound(url, title);
-    } else {
-      await audio.playSound(url, title);
-    }
+  const handlePlaySound = (id: string, type: 'sound' | 'frequency') => {
+    console.log('[UI] Opening player', { id, type });
+    router.push(`/player?id=${id}&type=${type}`);
   };
 
   return (
@@ -111,7 +107,7 @@ export default function HomeScreen() {
                   key={sound.id}
                   sound={sound}
                   isPlaying={audio.currentTrack === sound.audioUrl && audio.isPlaying}
-                  onPlay={() => handlePlaySound(sound.id, sound.audioUrl, sound.title)}
+                  onPlay={() => handlePlaySound(sound.id, 'sound')}
                 />
               ))}
             </>
@@ -122,7 +118,7 @@ export default function HomeScreen() {
                   key={frequency.id}
                   frequency={frequency}
                   isPlaying={audio.currentTrack === frequency.audioUrl && audio.isPlaying}
-                  onPlay={() => handlePlaySound(frequency.id, frequency.audioUrl, frequency.title)}
+                  onPlay={() => handlePlaySound(frequency.id, 'frequency')}
                 />
               ))}
             </>
