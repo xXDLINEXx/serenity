@@ -33,7 +33,7 @@ async function generateTone(frequency: number): Promise<string> {
   synth.stop();
   synth.dispose();
   
-  return URL.createObjectURL(recording);
+  return URL.createObjectURL(recording as unknown as Blob);
 }
 
 async function generateWhiteNoise(): Promise<string> {
@@ -50,7 +50,7 @@ async function generateWhiteNoise(): Promise<string> {
   noise.stop();
   noise.dispose();
   
-  return URL.createObjectURL(recording);
+  return URL.createObjectURL(recording as unknown as Blob);
 }
 
 export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(() => {
@@ -86,7 +86,9 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
           sound.pause();
           sound.src = '';
         } else if (sound && 'unloadAsync' in sound) {
-          sound.unloadAsync();
+          // narrow at runtime
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (sound as any).unloadAsync();
         }
       }
       if (timerRef.current) {
@@ -125,7 +127,8 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
               blobUrlRef.current = null;
             }
           } else if (sound && 'unloadAsync' in sound) {
-            await sound.unloadAsync();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await (sound as any).unloadAsync();
           }
         }
 
@@ -156,7 +159,7 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
           audio.addEventListener('error', (e) => {
             const target = e.target as HTMLAudioElement;
             const errorCode = target.error?.code;
-            const errorMessage = target.error?.message || 'Unknown error';
+            const errorMessage = (target.error as any)?.message || 'Unknown error';
             console.error('[Audio] Error loading audio:', {
               code: errorCode,
               message: errorMessage,
@@ -191,32 +194,17 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
             }
           } else {
             try {
-              console.log('[Audio] Fetching:', url);
-              const response = await fetch(url, { mode: 'cors' });
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-              }
-              const blob = await response.blob();
-              console.log('[Audio] Blob type:', blob.type, 'size:', blob.size);
-              
-              if (blob.size === 0) {
-                throw new Error('Empty audio file');
-              }
-              
-              blobUrl = URL.createObjectURL(blob);
-              audio.src = blobUrl;
-              
+              console.log('[Audio] Loading via HTMLAudioElement:', url);
+              audio.src = url;
               await new Promise((resolve, reject) => {
-                audio.oncanplaythrough = resolve;
-                audio.onerror = reject;
-                setTimeout(() => reject(new Error('Load timeout')), 10000);
+                audio.oncanplaythrough = resolve as any;
+                audio.onerror = reject as any;
+                setTimeout(() => reject(new Error('Load timeout')), 15000);
               });
-              
               await audio.play();
-              blobUrlRef.current = blobUrl;
               console.log('[Audio] Playing successfully');
             } catch (err) {
-              console.error('[Audio] Failed to load:', err);
+              console.error('[Audio] Failed to load direct src:', err);
               setIsLoading(false);
               return;
             }
@@ -287,7 +275,8 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
         sound.pause();
         setIsPlaying(false);
       } else if (sound && 'pauseAsync' in sound) {
-        await sound.pauseAsync();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (sound as any).pauseAsync();
         setIsPlaying(false);
       }
     }
@@ -309,8 +298,10 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
         setCurrentTitle(null);
         setPosition(0);
       } else if (sound && 'stopAsync' in sound) {
-        await sound.stopAsync();
-        await sound.unloadAsync();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (sound as any).stopAsync();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (sound as any).unloadAsync();
         setSound(null);
         setIsPlaying(false);
         setCurrentTrack(null);
