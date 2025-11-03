@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -23,7 +23,6 @@ import {
 import { healingFrequencies, HealingFrequency } from '@/constants/frequencies';
 import { sleepSounds, SleepSound } from '@/constants/sleepSounds';
 import { useAudio } from '@/contexts/AudioContext';
-import React from "react";
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -263,15 +262,16 @@ function FrequencyCard({
   onPlay: () => void;
 }) {
   const frequencyImages: Record<string, string> = {
-    '174': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80',
-    '285': 'https://images.unsplash.com/photo-1464802686167-b939a6910659?w=800&q=80',
-    '396': 'https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?w=800&q=80',
-    '417': 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800&q=80',
-    '528': 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80',
-    '639': 'https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=800&q=80',
-    '741': 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800&q=80',
-    '852': 'https://images.unsplash.com/photo-1520034475321-cbe63696469a?w=800&q=80',
-    '963': 'https://images.unsplash.com/photo-1472552944129-b035e9ea3744?w=800&q=80',
+    '4-7 Hz': 'https://images.unsplash.com/photo-1511576661531-b34d7da5d0bb?w=800&q=80',
+    '8-12 Hz': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80',
+    '10 Hz': 'https://images.unsplash.com/photo-1464802686167-b939a6910659?w=800&q=80',
+    '33 Hz': 'https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?w=800&q=80',
+    '66 Hz': 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800&q=80',
+    '396/417/639 Hz': 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80',
+    '417 Hz': 'https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=800&q=80',
+    '852 Hz': 'https://images.unsplash.com/photo-1520034475321-cbe63696469a?w=800&q=80',
+    '1441 Hz': 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=800&q=80',
+    '2772 Hz': 'https://images.unsplash.com/photo-1472552944129-b035e9ea3744?w=800&q=80',
   };
   
   const thumbnailUrl = frequencyImages[frequency.frequency] || 'https://images.unsplash.com/photo-1511576661531-b34d7da5d0bb?w=800&q=80';
@@ -294,7 +294,8 @@ function FrequencyCard({
         >
           <View style={styles.cardContentNew}>
             <Text style={styles.cardTitleNew}>{frequency.title}</Text>
-            <Text style={styles.cardDescriptionNew}>{frequency.frequency} Hz • {frequency.description}</Text>
+            <Text style={styles.cardDescriptionNew}>{frequency.description}</Text>
+            <Text style={styles.cardBenefits}>{frequency.benefits}</Text>
           </View>
         </LinearGradient>
       </ImageBackground>
@@ -522,5 +523,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600' as const,
     color: '#EF4444',
+  },
+  cardBenefits: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.6)',
+    lineHeight: 18,
+    marginTop: 6,
+    fontStyle: 'italic' as const,
   },
 });
