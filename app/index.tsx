@@ -87,13 +87,22 @@ export default function HomeScreen() {
             <Text style={styles.headerTitle}>Serenity</Text>
             <Text style={styles.headerSubtitle}>Peaceful audio for better sleep</Text>
           </View>
-          <TouchableOpacity
-            style={styles.cdnButton}
-            onPress={handleOpenCDNPlayer}
-            testID="cdn-button"
-          >
-            <Text style={styles.cdnButtonText}>CDN</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity
+              style={styles.cdnButton}
+              onPress={handleOpenCDNPlayer}
+              testID="cdn-button"
+            >
+              <Text style={styles.cdnButtonText}>CDN</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.debugButton}
+              onPress={() => router.push('/debug-json')}
+              testID="debug-button"
+            >
+              <Text style={styles.debugButtonText}>DEBUG</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.tabContainer} testID="tabs">
@@ -344,6 +353,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700' as const,
     color: '#8B5CF6',
+  },
+  debugButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(234, 179, 8, 0.2)',
+    borderWidth: 1,
+    borderColor: '#EAB308',
+  },
+  debugButtonText: {
+    fontSize: 14,
+    fontWeight: '700' as const,
+    color: '#EAB308',
   },
   headerTitle: {
     fontSize: 34,

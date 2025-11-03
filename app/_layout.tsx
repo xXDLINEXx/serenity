@@ -16,6 +16,7 @@ function RootLayoutNav() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="player" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="cdn-player" options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="debug-json" options={{ headerShown: true, title: "Debug JSON" }} />
     </Stack>
   );
 }
