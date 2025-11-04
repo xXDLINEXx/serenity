@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import sounds from '../soundsConfig.json'; // Local JSON
+import sounds from '../soundsConfig.json';
 import { SoundPlayer } from '@/components/SoundPlayer';
 
 export default function HomeScreen() {
@@ -21,7 +21,7 @@ export default function HomeScreen() {
       <StatusBar barStyle="light-content" />
       <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <Text style={styles.headerTitle}>Serenity 🌙</Text>
-        <Text style={styles.headerSubtitle}>Sonothérapie & Relaxation</Text>
+        <Text style={styles.headerSubtitle}>Sons & Fréquences relaxantes</Text>
       </View>
 
       {/* Tabs */}
@@ -40,12 +40,14 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* List */}
+      {/* Content */}
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {(activeTab === 'sounds' ? soundsOnly : frequenciesOnly).map((item, index) => (
           <TouchableOpacity key={index} style={styles.item} onPress={() => handlePlay(item)}>
             <Text style={styles.itemTitle}>{item.title}</Text>
-            <Text style={styles.itemDesc}>{item.description || 'Audio relaxant'}</Text>
+            <Text style={styles.itemDesc}>
+              {item.audio ? 'Son de relaxation' : 'Fréquence binaurale / Hz'}
+            </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -71,6 +73,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 4,
+    letterSpacing: 1,
   },
   headerSubtitle: {
     fontSize: 15,
