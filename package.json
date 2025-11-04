@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
-    "@react-navigation/native": "^6.1.18",
     "@react-navigation/bottom-tabs": "^6.5.20",
-    "expo": "~51.0.22",
+    "@react-navigation/native": "^6.1.18",
+    "expo": "^54.0.22",
     "expo-av": "~14.0.6",
     "expo-linear-gradient": "~13.0.2",
     "expo-router": "^3.5.16",
