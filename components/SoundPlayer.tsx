@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  StatusBar,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Audio, AVPlaybackStatus } from 'expo-av';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,6 +20,7 @@ interface SoundPlayerProps {
 }
 
 export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
+  const insets = useSafeAreaInsets();
   const [audioSound, setAudioSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +33,27 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
     player.muted = true;
   });
 
+  const performCleanup = useCallback(async () => {
+    try {
+      if (audioSound) {
+        console.log('[SoundPlayer] Stopping and unloading audio');
+        await audioSound.stopAsync();
+        await audioSound.unloadAsync();
+      }
+      if (player) {
+        console.log('[SoundPlayer] Stopping video');
+        player.pause();
+      }
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: false,
+        staysActiveInBackground: false,
+        shouldDuckAndroid: false,
+      });
+    } catch (error) {
+      console.error('[SoundPlayer] Cleanup error:', error);
+    }
+  }, [audioSound, player]);
+
   useEffect(() => {
     console.log('[SoundPlayer] Mounting with sound:', sound.title);
     setupAudio();
@@ -41,29 +65,17 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
     
     return () => {
       console.log('[SoundPlayer] Unmounting, cleaning up');
-      const performCleanup = async () => {
-        try {
-          if (audioSound) {
-            await audioSound.unloadAsync();
-          }
-          if (player) {
-            player.pause();
-          }
-        } catch (error) {
-          console.error('[SoundPlayer] Cleanup error:', error);
-        }
-      };
       performCleanup();
     };
-  }, [audioSound, player, sound.title, sound.video]);
+  }, [sound.title, sound.video, performCleanup]);
 
   const setupAudio = async () => {
     try {
-      console.log('[SoundPlayer] Setting up audio mode');
+      console.log('[SoundPlayer] Setting up audio mode for background playback');
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,
         staysActiveInBackground: true,
-        shouldDuckAndroid: true,
+        shouldDuckAndroid: false,
       });
     } catch (error) {
       console.error('[SoundPlayer] Error setting audio mode:', error);
@@ -73,13 +85,16 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
   const cleanup = async () => {
     try {
       if (audioSound) {
-        console.log('[SoundPlayer] Unloading audio');
+        console.log('[SoundPlayer] Stopping audio');
+        await audioSound.stopAsync();
         await audioSound.unloadAsync();
+        setAudioSound(null);
       }
       if (player) {
-        console.log('[SoundPlayer] Pausing video');
+        console.log('[SoundPlayer] Stopping video');
         player.pause();
       }
+      setIsPlaying(false);
     } catch (error) {
       console.error('[SoundPlayer] Error during cleanup:', error);
     }
@@ -213,12 +228,14 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
   };
 
   const handleClose = async () => {
+    console.log('[SoundPlayer] Closing player');
     await cleanup();
     onClose();
   };
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
       {videoUrl && (
         <View style={styles.videoContainer}>
           <VideoView
@@ -234,7 +251,7 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
         colors={videoUrl ? ['transparent', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)'] : ['#1E1B4B', '#312E81', '#4C1D95']}
         style={styles.gradient}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
           <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
             <X size={28} color="#FFFFFF" strokeWidth={2.5} />
           </TouchableOpacity>
@@ -242,7 +259,7 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
           <View style={styles.placeholder} />
         </View>
 
-        <View style={styles.content}>
+        <View style={[styles.content, { paddingBottom: insets.bottom + 60 }]}>
           <View style={styles.infoContainer}>
             <Text style={styles.title}>{sound.title}</Text>
             {sound.description && (
@@ -355,7 +372,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
   },
@@ -379,7 +395,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     paddingHorizontal: 32,
-    paddingBottom: 60,
   },
   infoContainer: {
     alignItems: 'center',
