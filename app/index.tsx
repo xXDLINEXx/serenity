@@ -31,11 +31,10 @@ const thumbnailMap: Record<string, string> = {
   ocean: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80',
   forest: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80',
   wind: 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=800&q=80',
-  fire: 'https://images.unsplash.com/photo-1476041800959-2f6bb412c8ce?w=800&q=80',
+  thunder: 'https://images.unsplash.com/photo-1429552077091-836152271555?w=800&q=80',
   river: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
   night: 'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=800&q=80',
-  thunder: 'https://images.unsplash.com/photo-1429552077091-836152271555?w=800&q=80',
-  whitenoise: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80',
+  bells: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80',
 };
 
 function BlurContainer({ children, style }: { children: React.ReactNode; style?: any }) {
