@@ -1,92 +1,92 @@
 [
   {
     "title": "Vent léger",
-    "audio": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/audio/vent-leger.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/video/vent-leger.mp4"
+    "audio": "../media/audio/vent-leger.mp3",
+    "video": "../media/video/vent-leger.mp4"
   },
   {
     "title": "Vague de l'océan",
-    "audio": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/audio/vague-de-locean.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/video/vague-de-locean.mp4"
+    "audio": "../media/audio/vague-de-locean.mp3",
+    "video": "../media/video/vague-de-locean.mp4"
   },
   {
     "title": "Rivière calme",
-    "audio": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/audio/riviere-calme.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/video/riviere-calme.mp4"
+    "audio": "../media/audio/riviere-calme.mp3",
+    "video": "../media/video/riviere-calme.mp4"
   },
   {
     "title": "Pluie douce",
-    "audio": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/audio/pluie-douce.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/video/pluie-douce.mp4"
+    "audio": "../media/audio/pluie-douce.mp3",
+    "video": "../media/video/pluie-douce.mp4"
   },
   {
     "title": "Orage apaisant",
-    "audio": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/audio/orage-apaisant.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/video/orage-apaisant.mp4"
+    "audio": "../media/audio/orage-apaisant.mp3",
+    "video": "../media/video/orage-apaisant.mp4"
   },
   {
     "title": "Forêt paisible",
-    "audio": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/audio/foret-paisible.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/video/foret-paisible.mp4"
+    "audio": "../media/audio/foret-paisible.mp3",
+    "video": "../media/video/foret-paisible.mp4"
   },
   {
     "title": "Feu de camp",
-    "audio": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/audio/feu-de-camp.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/video/feu-de-camp.mp4"
+    "audio": "../media/audio/feu-de-camp.mp3",
+    "video": "../media/video/feu-de-camp.mp4"
   },
   {
     "title": "Bruit blanc",
-    "audio": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/audio/bruit-blanc.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/video/bruit-blanc.mp4"
+    "audio": "../media/audio/bruit-blanc.mp3",
+    "video": "../media/video/bruit-blanc.mp4"
   },
   {
     "title": "4–7 Hz – Avec 417 & 639 Hz",
-    "frequency": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/4-7hz-with-417hz-639hz.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/frequence.mp4"
+    "frequency": "../media/frequency/4-7hz-with-417hz-639hz.mp3",
+    "video": "../media/frequency/frequence.mp4"
   },
   {
     "title": "8–12 Hz",
-    "frequency": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/8-to-12-hz.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/frequence.mp4"
+    "frequency": "../media/frequency/8-to-12-hz.mp3",
+    "video": "../media/frequency/frequence.mp4"
   },
   {
     "title": "10 Hz",
-    "frequency": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/10hz.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/frequence.mp4"
+    "frequency": "../media/frequency/10hz.mp3",
+    "video": "../media/frequency/frequence.mp4"
   },
   {
     "title": "33 Hz",
-    "frequency": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/33hz.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/frequence.mp4"
+    "frequency": "../media/frequency/33hz.mp3",
+    "video": "../media/frequency/frequence.mp4"
   },
   {
     "title": "66 Hz",
-    "frequency": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/66hz.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/frequence.mp4"
+    "frequency": "../media/frequency/66hz.mp3",
+    "video": "../media/frequency/frequence.mp4"
   },
   {
     "title": "396 Hz – 417 Hz – 639 Hz",
-    "frequency": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/396-hz-417-hz-639hz.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/frequence.mp4"
+    "frequency": "../media/frequency/396-hz-417-hz-639hz.mp3",
+    "video": "../media/frequency/frequence.mp4"
   },
   {
     "title": "417 Hz",
-    "frequency": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/417hz.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/frequence.mp4"
+    "frequency": "../media/frequency/417hz.mp3",
+    "video": "../media/frequency/frequence.mp4"
   },
   {
     "title": "852 Hz",
-    "frequency": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/852hz.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/frequence.mp4"
+    "frequency": "../media/frequency/852hz.mp3",
+    "video": "../media/frequency/frequence.mp4"
   },
   {
     "title": "1441 Hz",
-    "frequency": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/1441hz.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/frequence.mp4"
+    "frequency": "../media/frequency/1441hz.mp3",
+    "video": "../media/frequency/frequence.mp4"
   },
   {
     "title": "2772 Hz",
-    "frequency": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/2772hz.mp3",
-    "video": "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/frequence.mp4"
+    "frequency": "../media/frequency/2772hz.mp3",
+    "video": "../media/frequency/frequence.mp4"
   }
 ]
