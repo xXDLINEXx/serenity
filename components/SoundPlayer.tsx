@@ -27,8 +27,8 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
   const [volume, setVolume] = useState(1.0);
   const [isMuted, setIsMuted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const player = useVideoPlayer(videoUrl || '', (player) => {
+  const videoSource = sound.video || null;
+  const player = useVideoPlayer(videoSource || '', (player) => {
     player.loop = true;
     player.muted = true;
   });
@@ -58,20 +58,11 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
     console.log('[SoundPlayer] Mounting with sound:', sound.title);
     setupAudio();
     
-    if (sound.video) {
-      console.log('[SoundPlayer] Loading video asset:', sound.video);
-      if (typeof sound.video === 'number') {
-        setVideoUrl(String(sound.video));
-      } else if (typeof sound.video === 'string') {
-        setVideoUrl(sound.video);
-      }
-    }
-    
     return () => {
       console.log('[SoundPlayer] Unmounting, cleaning up');
       performCleanup();
     };
-  }, [sound.title, sound.video, performCleanup]);
+  }, [sound.title, performCleanup]);
 
   const setupAudio = async () => {
     try {
@@ -137,7 +128,7 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
       setIsPlaying(true);
       console.log('[SoundPlayer] Audio loaded and playing');
 
-      if (player && videoUrl) {
+      if (player && videoSource) {
         console.log('[SoundPlayer] Starting video playback');
         player.play();
       }
@@ -244,7 +235,7 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      {videoUrl && (
+      {videoSource && (
         <View style={styles.videoContainer}>
           <VideoView
             player={player}
@@ -256,7 +247,7 @@ export function SoundPlayer({ sound, onClose }: SoundPlayerProps) {
         </View>
       )}
       <LinearGradient
-        colors={videoUrl ? ['transparent', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)'] : ['#1E1B4B', '#312E81', '#4C1D95']}
+        colors={videoSource ? ['transparent', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)'] : ['#1E1B4B', '#312E81', '#4C1D95']}
         style={styles.gradient}
       >
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
