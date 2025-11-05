@@ -4,51 +4,51 @@ export const soundsConfig: SoundConfig[] = [
   {
     title: "Vent léger",
     type: "sound",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/audio/vent-leger.mp3"),
+    video: require("../media/video/vent-leger.mp4"),
     description: "Murmure doux du vent dans les arbres"
   },
   {
     title: "Vague de l'océan",
     type: "sound",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/audio/vague-ocean.mp3"),
+    video: require("../media/video/vague-ocean.mp4"),
     description: "Bruit des vagues qui se brisent sur la plage"
   },
   {
     title: "Rivière calme",
     type: "sound",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/audio/riviere-calme.mp3"),
+    video: require("../media/video/riviere-calme.mp4"),
     description: "Eau qui s'écoule paisiblement"
   },
   {
     title: "Pluie douce",
     type: "sound",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/audio/pluie-douce.mp3"),
+    video: require("../media/video/pluie-douce.mp4"),
     description: "Son apaisant de la pluie qui tombe"
   },
   {
     title: "Orage apaisant",
     type: "sound",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/audio/orage-apaisant.mp3"),
+    video: require("../media/video/orage-apaisant.mp4"),
     description: "Tonnerre lointain et pluie douce"
   },
   {
     title: "Feu de camp",
     type: "sound",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/audio/feu-camp.mp3"),
+    video: require("../media/video/feu-camp.mp4"),
     description: "Crépitement relaxant d'un feu de bois"
   },
   {
     title: "4-7 Hz",
     type: "frequency",
     frequency: "4-7 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/4-7hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Ondes Thêta",
     benefits: "Relaxation profonde, méditation, sommeil paradoxal"
   },
@@ -56,8 +56,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "8-12 Hz",
     type: "frequency",
     frequency: "8-12 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/8-12hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Ondes Alpha",
     benefits: "Calme, concentration détendue, créativité"
   },
@@ -65,8 +65,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "10 Hz",
     type: "frequency",
     frequency: "10 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/10hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Fréquence Schumann",
     benefits: "Harmonie naturelle, équilibre corps-esprit"
   },
@@ -74,8 +74,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "33 Hz",
     type: "frequency",
     frequency: "33 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/33hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Fréquence du Christ",
     benefits: "Élévation spirituelle, conscience supérieure"
   },
@@ -83,8 +83,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "66 Hz",
     type: "frequency",
     frequency: "66 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/66hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Fréquence d'harmonisation",
     benefits: "Équilibre des chakras, guérison énergétique"
   },
@@ -92,8 +92,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "396 Hz",
     type: "frequency",
     frequency: "396 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/396hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Libération de la peur",
     benefits: "Transformation des émotions négatives, libération du stress"
   },
@@ -101,8 +101,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "417 Hz",
     type: "frequency",
     frequency: "417 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/417hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Facilitation du changement",
     benefits: "Transmutation des énergies négatives, nouveaux départs"
   },
@@ -110,8 +110,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "528 Hz",
     type: "frequency",
     frequency: "528 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/528hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Fréquence de l'amour et de la guérison",
     benefits: "Réparation ADN, transformation, miracles"
   },
@@ -119,8 +119,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "852 Hz",
     type: "frequency",
     frequency: "852 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/852hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Éveil spirituel",
     benefits: "Intuition, connexion spirituelle, clarté mentale"
   },
@@ -128,8 +128,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "1441 Hz",
     type: "frequency",
     frequency: "1441 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/1441hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Fréquence de la prospérité",
     benefits: "Abondance, manifestation, alignement avec l'univers"
   },
@@ -137,8 +137,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "2772 Hz",
     type: "frequency",
     frequency: "2772 Hz",
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    audio: require("../media/frequency/2772hz.mp3"),
+    video: require("../media/frequency/frequence.mp4"),
     description: "Fréquence de régénération",
     benefits: "Régénération cellulaire, rajeunissement, vitalité"
   }
