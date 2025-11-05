@@ -4,51 +4,51 @@ export const soundsConfig: SoundConfig[] = [
   {
     title: "Vent léger",
     type: "sound",
-    audio: require("../media/audio/vent-leger.mp3"),
-    video: require("../media/video/vent-leger.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/vent-leger-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/vent-leger-video",
     description: "Murmure doux du vent dans les arbres"
   },
   {
     title: "Vague de l'océan",
     type: "sound",
-    audio: require("../media/audio/vague-de-locean.mp3"),
-    video: require("../media/video/vague-de-locean.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/vague-ocean-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/vague-ocean-video",
     description: "Bruit des vagues qui se brisent sur la plage"
   },
   {
     title: "Rivière calme",
     type: "sound",
-    audio: require("../media/audio/riviere-calme.mp3"),
-    video: require("../media/video/riviere-calme.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/riviere-calme-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/riviere-calme-video",
     description: "Eau qui s'écoule paisiblement"
   },
   {
     title: "Pluie douce",
     type: "sound",
-    audio: require("../media/audio/pluie-douce.mp3"),
-    video: require("../media/video/pluie-douce.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/pluie-douce-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/pluie-douce-video",
     description: "Son apaisant de la pluie qui tombe"
   },
   {
     title: "Orage apaisant",
     type: "sound",
-    audio: require("../media/audio/orage-apaisant.mp3"),
-    video: require("../media/video/orage-apaisant.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/orage-apaisant-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/orage-apaisant-video",
     description: "Tonnerre lointain et pluie douce"
   },
   {
     title: "Feu de camp",
     type: "sound",
-    audio: require("../media/audio/feu-de-camp.mp3"),
-    video: require("../media/video/feu-de-camp.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/feu-camp-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/feu-camp-video",
     description: "Crépitement relaxant d'un feu de bois"
   },
   {
     title: "4-7 Hz",
     type: "frequency",
     frequency: "4-7 Hz",
-    audio: require("../media/frequency/4-7hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/4-7hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Ondes Thêta",
     benefits: "Relaxation profonde, méditation, sommeil paradoxal"
   },
@@ -56,8 +56,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "8-12 Hz",
     type: "frequency",
     frequency: "8-12 Hz",
-    audio: require("../media/frequency/8-12hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/8-12hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Ondes Alpha",
     benefits: "Calme, concentration détendue, créativité"
   },
@@ -65,8 +65,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "10 Hz",
     type: "frequency",
     frequency: "10 Hz",
-    audio: require("../media/frequency/10hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/10hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Fréquence Schumann",
     benefits: "Harmonie naturelle, équilibre corps-esprit"
   },
@@ -74,8 +74,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "33 Hz",
     type: "frequency",
     frequency: "33 Hz",
-    audio: require("../media/frequency/33hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/33hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Fréquence du Christ",
     benefits: "Élévation spirituelle, conscience supérieure"
   },
@@ -83,8 +83,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "66 Hz",
     type: "frequency",
     frequency: "66 Hz",
-    audio: require("../media/frequency/66hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/66hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Fréquence d'harmonisation",
     benefits: "Équilibre des chakras, guérison énergétique"
   },
@@ -92,8 +92,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "396 Hz",
     type: "frequency",
     frequency: "396 Hz",
-    audio: require("../media/frequency/396hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/396hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Libération de la peur",
     benefits: "Transformation des émotions négatives, libération du stress"
   },
@@ -101,8 +101,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "417 Hz",
     type: "frequency",
     frequency: "417 Hz",
-    audio: require("../media/frequency/417hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/417hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Facilitation du changement",
     benefits: "Transmutation des énergies négatives, nouveaux départs"
   },
@@ -110,8 +110,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "528 Hz",
     type: "frequency",
     frequency: "528 Hz",
-    audio: require("../media/frequency/528hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/528hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Fréquence de l'amour et de la guérison",
     benefits: "Réparation ADN, transformation, miracles"
   },
@@ -119,8 +119,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "852 Hz",
     type: "frequency",
     frequency: "852 Hz",
-    audio: require("../media/frequency/852hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/852hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Éveil spirituel",
     benefits: "Intuition, connexion spirituelle, clarté mentale"
   },
@@ -128,8 +128,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "1441 Hz",
     type: "frequency",
     frequency: "1441 Hz",
-    audio: require("../media/frequency/1441hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/1441hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Fréquence de la prospérité",
     benefits: "Abondance, manifestation, alignement avec l'univers"
   },
@@ -137,8 +137,8 @@ export const soundsConfig: SoundConfig[] = [
     title: "2772 Hz",
     type: "frequency",
     frequency: "2772 Hz",
-    audio: require("../media/frequency/2772hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
+    audio: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/2772hz-audio",
+    video: "https://rork.app/pa/rv7na5ufsw2bv92qaa2ao/frequence-video",
     description: "Fréquence de régénération",
     benefits: "Régénération cellulaire, rajeunissement, vitalité"
   }
