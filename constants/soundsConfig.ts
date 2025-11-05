@@ -1,145 +1,44 @@
-import { SoundConfig } from "@/types/soundsConfig";
+import { tryRequire } from '@/utils/tryRequire';
 
-export const soundsConfig: SoundConfig[] = [
-  {
-    title: "Vent léger",
-    type: "sound",
-    audio: require("../media/audio/vent-leger.mp3"),
-    video: require("../media/video/vent-leger.mp4"),
-    description: "Murmure doux du vent dans les arbres"
-  },
-  {
-    title: "Vague de l'océan",
-    type: "sound",
-    audio: require("../media/audio/vague-ocean.mp3"),
-    video: require("../media/video/vague-ocean.mp4"),
-    description: "Bruit des vagues qui se brisent sur la plage"
-  },
-  {
-    title: "Rivière calme",
-    type: "sound",
-    audio: require("../media/audio/riviere-calme.mp3"),
-    video: require("../media/video/riviere-calme.mp4"),
-    description: "Eau qui s'écoule paisiblement"
-  },
-  {
-    title: "Pluie douce",
-    type: "sound",
-    audio: require("../media/audio/pluie-douce.mp3"),
-    video: require("../media/video/pluie-douce.mp4"),
-    description: "Son apaisant de la pluie qui tombe"
-  },
-  {
-    title: "Orage apaisant",
-    type: "sound",
-    audio: require("../media/audio/orage-apaisant.mp3"),
-    video: require("../media/video/orage-apaisant.mp4"),
-    description: "Tonnerre lointain et pluie douce"
-  },
-  {
-    title: "Feu de camp",
-    type: "sound",
-    audio: require("../media/audio/feu-camp.mp3"),
-    video: require("../media/video/feu-camp.mp4"),
-    description: "Crépitement relaxant d'un feu de bois"
-  },
-  {
-    title: "4-7 Hz",
-    type: "frequency",
-    frequency: "4-7 Hz",
-    audio: require("../media/frequency/4-7hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Ondes Thêta",
-    benefits: "Relaxation profonde, méditation, sommeil paradoxal"
-  },
-  {
-    title: "8-12 Hz",
-    type: "frequency",
-    frequency: "8-12 Hz",
-    audio: require("../media/frequency/8-12hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Ondes Alpha",
-    benefits: "Calme, concentration détendue, créativité"
-  },
-  {
-    title: "10 Hz",
-    type: "frequency",
-    frequency: "10 Hz",
-    audio: require("../media/frequency/10hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Fréquence Schumann",
-    benefits: "Harmonie naturelle, équilibre corps-esprit"
-  },
-  {
-    title: "33 Hz",
-    type: "frequency",
-    frequency: "33 Hz",
-    audio: require("../media/frequency/33hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Fréquence du Christ",
-    benefits: "Élévation spirituelle, conscience supérieure"
-  },
-  {
-    title: "66 Hz",
-    type: "frequency",
-    frequency: "66 Hz",
-    audio: require("../media/frequency/66hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Fréquence d'harmonisation",
-    benefits: "Équilibre des chakras, guérison énergétique"
-  },
-  {
-    title: "396 Hz",
-    type: "frequency",
-    frequency: "396 Hz",
-    audio: require("../media/frequency/396hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Libération de la peur",
-    benefits: "Transformation des émotions négatives, libération du stress"
-  },
-  {
-    title: "417 Hz",
-    type: "frequency",
-    frequency: "417 Hz",
-    audio: require("../media/frequency/417hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Facilitation du changement",
-    benefits: "Transmutation des énergies négatives, nouveaux départs"
-  },
-  {
-    title: "528 Hz",
-    type: "frequency",
-    frequency: "528 Hz",
-    audio: require("../media/frequency/528hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Fréquence de l'amour et de la guérison",
-    benefits: "Réparation ADN, transformation, miracles"
-  },
-  {
-    title: "852 Hz",
-    type: "frequency",
-    frequency: "852 Hz",
-    audio: require("../media/frequency/852hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Éveil spirituel",
-    benefits: "Intuition, connexion spirituelle, clarté mentale"
-  },
-  {
-    title: "1441 Hz",
-    type: "frequency",
-    frequency: "1441 Hz",
-    audio: require("../media/frequency/1441hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Fréquence de la prospérité",
-    benefits: "Abondance, manifestation, alignement avec l'univers"
-  },
-  {
-    title: "2772 Hz",
-    type: "frequency",
-    frequency: "2772 Hz",
-    audio: require("../media/frequency/2772hz.mp3"),
-    video: require("../media/frequency/frequence.mp4"),
-    description: "Fréquence de régénération",
-    benefits: "Régénération cellulaire, rajeunissement, vitalité"
-  }
+const FALLBACK_AUDIO = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+const FALLBACK_VIDEO = 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4';
+const FALLBACK_FREQ_VIDEO = FALLBACK_VIDEO;
+
+type SoundEntry = {
+  title: string;
+  audio?: number | string;
+  video?: number | string;
+  frequency?: number | string;
+};
+
+const local = (audioPath?: string, videoPath?: string, freqPath?: string) => {
+  const audio = audioPath ? (tryRequire(audioPath) ?? FALLBACK_AUDIO) : undefined;
+  const video = videoPath ? (tryRequire(videoPath) ?? FALLBACK_VIDEO) : undefined;
+  const frequency = freqPath ? (tryRequire(freqPath) ?? FALLBACK_AUDIO) : undefined;
+  return { audio, video, frequency };
+};
+
+const sounds: SoundEntry[] = [
+  { title: "Vent léger", ...local('../media/audio/vent-leger.mp3', '../media/video/vent-leger.mp4') },
+  { title: "Vague de l'océan", ...local('../media/audio/vague-de-locean.mp3', '../media/video/vague-de-locean.mp4') },
+  { title: "Rivière calme", ...local('../media/audio/riviere-calme.mp3', '../media/video/riviere-calme.mp4') },
+  { title: "Pluie douce", ...local('../media/audio/pluie-douce.mp3', '../media/video/pluie-douce.mp4') },
+  { title: "Orage apaisant", ...local('../media/audio/orage-apaisant.mp3', '../media/video/orage-apaisant.mp4') },
+  { title: "Forêt paisible", ...local('../media/audio/foret-paisible.mp3', '../media/video/foret-paisible.mp4') },
+  { title: "Feu de camp", ...local('../media/audio/feu-de-camp.mp3', '../media/video/feu-de-camp.mp4') },
+  { title: "Bruit blanc", ...local('../media/audio/bruit-blanc.mp3', '../media/video/bruit-blanc.mp4') },
+
+  { title: "4–7 Hz – Avec 417 & 639 Hz", ...local(undefined, '../media/frequency/frequence.mp4', '../media/frequency/4-7hz-with-417hz-639hz.mp3') },
+  { title: "8–12 Hz", ...local(undefined, '../media/frequency/frequence.mp4', '../media/frequency/8-to-12-hz.mp3') },
+  { title: "10 Hz", ...local(undefined, '../media/frequency/frequence.mp4', '../media/frequency/10hz.mp3') },
+  { title: "33 Hz", ...local(undefined, '../media/frequency/frequence.mp4', '../media/frequency/33hz.mp3') },
+  { title: "66 Hz", ...local(undefined, '../media/frequency/frequence.mp4', '../media/frequency/66hz.mp3') },
+  { title: "396/417/639 Hz", ...local(undefined, '../media/frequency/frequence.mp4', '../media/frequency/396-hz-417-hz-639hz.mp3') },
+  { title: "417 Hz", ...local(undefined, '../media/frequency/frequence.mp4', '../media/frequency/417hz.mp3') },
+  { title: "852 Hz", ...local(undefined, '../media/frequency/frequence.mp4', '../media/frequency/852hz.mp3') },
+  { title: "1441 Hz", ...local(undefined, '../media/frequency/frequence.mp4', '../media/frequency/1441hz.mp3') },
+  { title: "2772 Hz", ...local(undefined, '../media/frequency/frequence.mp4', '../media/frequency/2772hz.mp3') },
 ];
+
+export default sounds;
+export type { SoundEntry };

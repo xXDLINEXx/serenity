@@ -1,8 +1,9 @@
-export function tryRequire(path: string): any {
+export function tryRequire(path: string): number | undefined {
   try {
-    return require(path);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-return
+    const r = require(path);
+    return r;
   } catch (e) {
-    console.warn(`Failed to require: ${path}`, e);
     return undefined;
   }
 }
