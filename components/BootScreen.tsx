@@ -16,6 +16,9 @@ export function BootScreen({ onFinish }: BootScreenProps) {
   const particleAnim1 = useRef(new Animated.Value(0)).current;
   const particleAnim2 = useRef(new Animated.Value(0)).current;
   const particleAnim3 = useRef(new Animated.Value(0)).current;
+  const waveAnim = useRef(new Animated.Value(0)).current;
+  const sparkleAnim1 = useRef(new Animated.Value(0)).current;
+  const sparkleAnim2 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -99,16 +102,70 @@ export function BootScreen({ onFinish }: BootScreenProps) {
       ])
     );
 
+    const waveLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(waveAnim, {
+          toValue: 1,
+          duration: 1800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(waveAnim, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    const sparkle1Loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(sparkleAnim1, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sparkleAnim1, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+        Animated.delay(400),
+      ])
+    );
+
+    const sparkle2Loop = Animated.loop(
+      Animated.sequence([
+        Animated.delay(800),
+        Animated.timing(sparkleAnim2, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sparkleAnim2, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+        Animated.delay(400),
+      ])
+    );
+
     pulseLoop.start();
     particle1Loop.start();
     particle2Loop.start();
     particle3Loop.start();
+    waveLoop.start();
+    sparkle1Loop.start();
+    sparkle2Loop.start();
 
     const timeout = setTimeout(() => {
       pulseLoop.stop();
       particle1Loop.stop();
       particle2Loop.stop();
       particle3Loop.stop();
+      waveLoop.stop();
+      sparkle1Loop.stop();
+      sparkle2Loop.stop();
 
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -137,8 +194,11 @@ export function BootScreen({ onFinish }: BootScreenProps) {
       particle1Loop.stop();
       particle2Loop.stop();
       particle3Loop.stop();
+      waveLoop.stop();
+      sparkle1Loop.stop();
+      sparkle2Loop.stop();
     };
-  }, [fadeAnim, scaleAnim, glowAnim, pulseAnim, particleAnim1, particleAnim2, particleAnim3, onFinish]);
+  }, [fadeAnim, scaleAnim, glowAnim, pulseAnim, particleAnim1, particleAnim2, particleAnim3, waveAnim, sparkleAnim1, sparkleAnim2, onFinish]);
 
   const particle1Translate = particleAnim1.interpolate({
     inputRange: [0, 1],
@@ -173,6 +233,51 @@ export function BootScreen({ onFinish }: BootScreenProps) {
   const particle3Opacity = particleAnim3.interpolate({
     inputRange: [0, 0.3, 0.7, 1],
     outputRange: [0, 1, 0.4, 0],
+  });
+
+  const bar1Height = waveAnim.interpolate({
+    inputRange: [0, 0.25, 0.5, 0.75, 1],
+    outputRange: [1, 1.4, 1, 0.8, 1],
+  });
+
+  const bar2Height = waveAnim.interpolate({
+    inputRange: [0, 0.25, 0.5, 0.75, 1],
+    outputRange: [1, 0.9, 1.3, 1, 1],
+  });
+
+  const bar3Height = waveAnim.interpolate({
+    inputRange: [0, 0.25, 0.5, 0.75, 1],
+    outputRange: [1, 1.2, 0.9, 1.3, 1],
+  });
+
+  const bar4Height = waveAnim.interpolate({
+    inputRange: [0, 0.25, 0.5, 0.75, 1],
+    outputRange: [1, 0.8, 1.2, 0.9, 1],
+  });
+
+  const bar5Height = waveAnim.interpolate({
+    inputRange: [0, 0.25, 0.5, 0.75, 1],
+    outputRange: [1, 1.1, 1, 1.2, 1],
+  });
+
+  const sparkle1Scale = sparkleAnim1.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 1.5, 0],
+  });
+
+  const sparkle1Rotate = sparkleAnim1.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
+
+  const sparkle2Scale = sparkleAnim2.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 1.5, 0],
+  });
+
+  const sparkle2Rotate = sparkleAnim2.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
   });
 
   return (
@@ -247,11 +352,40 @@ export function BootScreen({ onFinish }: BootScreenProps) {
               }]}
             >
               <Image
-                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/7e85xljmjp0qwkzfptqcf' }}
+                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/gl6fzmc6levqq2gwickz4' }}
                 style={styles.logoImage}
                 resizeMode="contain"
               />
             </Animated.View>
+            
+            <View style={styles.audioWaveContainer}>
+              <Animated.View style={[styles.audioBar, { transform: [{ scaleY: bar1Height }] }]} />
+              <Animated.View style={[styles.audioBar, { transform: [{ scaleY: bar2Height }] }]} />
+              <Animated.View style={[styles.audioBar, styles.audioBarCenter, { transform: [{ scaleY: bar3Height }] }]} />
+              <Animated.View style={[styles.audioBar, { transform: [{ scaleY: bar4Height }] }]} />
+              <Animated.View style={[styles.audioBar, { transform: [{ scaleY: bar5Height }] }]} />
+            </View>
+            
+            <Animated.View
+              style={[
+                styles.sparkle,
+                styles.sparkle1,
+                {
+                  opacity: sparkleAnim1,
+                  transform: [{ scale: sparkle1Scale }, { rotate: sparkle1Rotate }],
+                },
+              ]}
+            />
+            <Animated.View
+              style={[
+                styles.sparkle,
+                styles.sparkle2,
+                {
+                  opacity: sparkleAnim2,
+                  transform: [{ scale: sparkle2Scale }, { rotate: sparkle2Rotate }],
+                },
+              ]}
+            />
           </View>
         </Animated.View>
       </LinearGradient>
@@ -326,5 +460,38 @@ const styles = StyleSheet.create({
   particle3: {
     top: 140,
     right: 80,
+  },
+  audioWaveContainer: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    top: '45%',
+    left: '50%',
+    transform: [{ translateX: -50 }, { translateY: -25 }],
+  },
+  audioBar: {
+    width: 6,
+    height: 30,
+    backgroundColor: '#8A9BB5',
+    borderRadius: 3,
+  },
+  audioBarCenter: {
+    height: 40,
+    backgroundColor: '#A8B8D0',
+  },
+  sparkle: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+  },
+  sparkle1: {
+    top: 60,
+    left: 40,
+  },
+  sparkle2: {
+    bottom: 80,
+    right: 50,
   },
 });
