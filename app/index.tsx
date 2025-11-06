@@ -4,147 +4,189 @@ import {
   StyleSheet,
   StatusBar,
   Text,
-  TouchableOpacity,
   ScrollView,
+  Animated,
+  Easing,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Music, Radio } from 'lucide-react-native';
+import { Moon } from 'lucide-react-native';
+import { SoundCard } from '@/components/SoundCard';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const sleepSounds = [
+  {
+    id: "lake",
+    title: "Peaceful Lake",
+    description: "Gentle waves and water sounds",
+    thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80",
+    gradient: "linear-gradient(135deg, hsl(200 60% 20%), hsl(220 50% 15%))",
+  },
+  {
+    id: "firecamp",
+    title: "Crackling Fireplace",
+    description: "Warm fire sounds for deep sleep",
+    thumbnail: "https://images.unsplash.com/photo-1525118970942-9b52ce5637e8?w=400&q=80",
+    gradient: "linear-gradient(135deg, hsl(20 60% 20%), hsl(10 50% 15%))",
+  },
+  {
+    id: "rain",
+    title: "Gentle Rain",
+    description: "Soothing rainfall ambience",
+    thumbnail: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=400&q=80",
+    gradient: "linear-gradient(135deg, hsl(210 40% 20%), hsl(230 35% 15%))",
+  },
+  {
+    id: "ocean",
+    title: "Ocean Waves",
+    description: "Rhythmic waves for relaxation",
+    thumbnail: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=400&q=80",
+    gradient: "linear-gradient(135deg, hsl(195 60% 25%), hsl(210 50% 18%))",
+  },
+  {
+    id: "forest",
+    title: "Forest Night",
+    description: "Nature sounds and crickets",
+    thumbnail: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80",
+    gradient: "linear-gradient(135deg, hsl(140 40% 20%), hsl(160 35% 15%))",
+  },
+  {
+    id: "wind",
+    title: "Calm Wind",
+    description: "Soft breeze through trees",
+    thumbnail: "https://images.unsplash.com/photo-1500964757637-c85e8a162699?w=400&q=80",
+    gradient: "linear-gradient(135deg, hsl(180 30% 25%), hsl(200 30% 18%))",
+  },
+  {
+    id: "thunder",
+    title: "Distant Thunder",
+    description: "Gentle storm ambience",
+    thumbnail: "https://images.unsplash.com/photo-1605727216801-e27ce1d0cc28?w=400&q=80",
+    gradient: "linear-gradient(135deg, hsl(240 30% 20%), hsl(250 35% 15%))",
+  },
+  {
+    id: "stream",
+    title: "Mountain Stream",
+    description: "Flowing water sounds",
+    thumbnail: "https://images.unsplash.com/photo-1520869562399-e772f042f422?w=400&q=80",
+    gradient: "linear-gradient(135deg, hsl(190 50% 25%), hsl(210 45% 18%))",
+  },
+  {
+    id: "night",
+    title: "Night Ambience",
+    description: "Peaceful nighttime sounds",
+    thumbnail: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=400&q=80",
+    gradient: "linear-gradient(135deg, hsl(250 40% 18%), hsl(260 35% 12%))",
+  },
+  {
+    id: "meditation",
+    title: "Meditation Bells",
+    description: "Calming bell tones",
+    thumbnail: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&q=80",
+    gradient: "linear-gradient(135deg, hsl(280 45% 22%), hsl(270 40% 16%))",
+  },
+];
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
+  const pulseAnim = React.useRef(new Animated.Value(1)).current;
+
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 1500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [pulseAnim]);
 
   return (
     <View style={styles.container} testID="home-screen">
-      <View style={{ backgroundColor: '#000000', height: insets.top }} />
+      <LinearGradient
+        colors={['#0F172A', '#1E293B', '#334155']}
+        style={StyleSheet.absoluteFill}
+      />
+      <View style={{ backgroundColor: '#0F172A', height: insets.top }} />
       <StatusBar barStyle="light-content" />
+      
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+        contentContainerStyle={[styles.contentContainer, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Sélectionnez votre ambiance</Text>
+          <View style={styles.iconContainer}>
+            <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+              <Moon size={48} color="#8B5CF6" strokeWidth={2} />
+            </Animated.View>
+          </View>
+          <Text style={styles.title}>Sleep Sounds</Text>
+          <Text style={styles.subtitle}>
+            Drift into peaceful sleep with calming sounds and soothing frequencies
+          </Text>
         </View>
-        
-        <View style={styles.menuContainer}>
-          <MenuCard
-            icon={Music}
-            title="Sons Ambiance"
-            description="Pluie, océan, forêt et plus"
-            colors={['#1E3A8A', '#3B82F6']}
-            onPress={() => router.push('/local-player')}
-          />
-          
-          <MenuCard
-            icon={Radio}
-            title="Fréquences de Guérison"
-            description="Ondes binaurales et Solfège"
-            colors={['#581C87', '#7C3AED']}
-            onPress={() => router.push('/cdn-player')}
-          />
+
+        <View style={styles.grid}>
+          {sleepSounds.map((sound) => (
+            <View key={sound.id} style={styles.gridItem}>
+              <SoundCard {...sound} />
+            </View>
+          ))}
         </View>
       </ScrollView>
     </View>
   );
 }
 
-function MenuCard({
-  icon: Icon,
-  title,
-  description,
-  colors,
-  onPress,
-}: {
-  icon: any;
-  title: string;
-  description: string;
-  colors: [string, string];
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      style={styles.menuCard}
-      onPress={onPress}
-      activeOpacity={0.85}
-    >
-      <View style={[styles.iconContainer, { backgroundColor: colors[0] }]}>
-        <Icon size={32} color="#FFFFFF" strokeWidth={2} />
-      </View>
-      <View style={styles.menuCardContent}>
-        <Text style={styles.menuCardTitle}>{title}</Text>
-        <Text style={styles.menuCardDescription}>{description}</Text>
-      </View>
-      <View style={styles.arrow}>
-        <Text style={styles.arrowText}>›</Text>
-      </View>
-    </TouchableOpacity>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0F172A',
   },
   scrollView: {
     flex: 1,
   },
-  header: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 16,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: '700' as const,
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  menuContainer: {
+  contentContainer: {
     paddingHorizontal: 16,
-    gap: 16,
   },
-  menuCard: {
-    flexDirection: 'row',
+  header: {
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
-    borderRadius: 20,
-    padding: 20,
-    gap: 16,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    paddingTop: 32,
+    paddingBottom: 24,
   },
   iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 16,
   },
-  menuCardContent: {
-    flex: 1,
-    gap: 4,
-  },
-  menuCardTitle: {
-    fontSize: 18,
+  title: {
+    fontSize: 48,
     fontWeight: '700' as const,
     color: '#FFFFFF',
+    marginBottom: 12,
+    textAlign: 'center',
   },
-  menuCardDescription: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.6)',
+  subtitle: {
+    fontSize: 18,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
+    maxWidth: 600,
+    lineHeight: 26,
   },
-  arrow: {
-    width: 24,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    paddingBottom: 20,
   },
-  arrowText: {
-    fontSize: 32,
-    color: 'rgba(255, 255, 255, 0.4)',
-    fontWeight: '300' as const,
+  gridItem: {
+    width: '100%',
   },
 });
