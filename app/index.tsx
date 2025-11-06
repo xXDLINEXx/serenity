@@ -161,11 +161,11 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingTop: 48,
-    paddingBottom: 40,
+    paddingTop: 24,
+    paddingBottom: 24,
   },
   iconContainer: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   logo: {
     width: 600,
@@ -179,6 +179,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     paddingHorizontal: 32,
     maxWidth: 400,
+    marginBottom: 8,
   },
   grid: {
     flexDirection: 'row',
