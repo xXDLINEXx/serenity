@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SoundCard } from '@/components/SoundCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { soundsConfig } from '@/constants/soundsConfig';
+import { healingFrequencies } from '@/constants/frequencies';
 import { useAudio } from '@/contexts/AudioContext';
 import { Pause, Play, X } from 'lucide-react-native';
 
@@ -103,10 +104,13 @@ const sleepSounds = [
   },
 ];
 
+type Section = 'sounds' | 'frequencies';
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const pulseAnim = React.useRef(new Animated.Value(1)).current;
   const { isPlaying, currentTitle, pauseSound, stopSound, playSound } = useAudio();
+  const [activeSection, setActiveSection] = useState<Section>('sounds');
 
   const getAudioUrlForSound = (soundId: string): string => {
     const mappedTitle = soundMapping[soundId];
@@ -161,13 +165,54 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        <View style={styles.grid}>
-          {sleepSounds.map((sound) => (
-            <View key={sound.id} style={styles.gridItem}>
-              <SoundCard {...sound} audioUrl={getAudioUrlForSound(sound.id)} />
-            </View>
-          ))}
+        <View style={styles.sectionButtons}>
+          <TouchableOpacity
+            style={[styles.sectionButton, activeSection === 'sounds' && styles.sectionButtonActive]}
+            onPress={() => setActiveSection('sounds')}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.sectionButtonText, activeSection === 'sounds' && styles.sectionButtonTextActive]}>
+              Sons
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.sectionButton, activeSection === 'frequencies' && styles.sectionButtonActive]}
+            onPress={() => setActiveSection('frequencies')}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.sectionButtonText, activeSection === 'frequencies' && styles.sectionButtonTextActive]}>
+              Fréquences
+            </Text>
+          </TouchableOpacity>
         </View>
+
+        {activeSection === 'sounds' ? (
+          <View style={styles.grid}>
+            {sleepSounds.map((sound) => (
+              <View key={sound.id} style={styles.gridItem}>
+                <SoundCard {...sound} audioUrl={getAudioUrlForSound(sound.id)} />
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View style={styles.grid}>
+            {healingFrequencies.map((freq) => {
+              console.log(`[Frequency] ${freq.title}: ${freq.audioUrl}`);
+              return (
+                <View key={freq.id} style={styles.gridItem}>
+                  <SoundCard
+                    id={freq.id}
+                    title={freq.title}
+                    description={freq.description}
+                    thumbnail={`https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&q=80`}
+                    gradient={`linear-gradient(135deg, ${freq.color}cc, ${freq.color}99, #000000ee)`}
+                    audioUrl={freq.audioUrl}
+                  />
+                </View>
+              );
+            })}
+          </View>
+        )}
       </ScrollView>
 
       {currentTitle && (
@@ -187,8 +232,12 @@ export default function HomeScreen() {
                       await pauseSound();
                     } else {
                       const currentSound = soundsConfig.find(s => s.title === currentTitle);
+                      const currentFreq = healingFrequencies.find(f => f.title === currentTitle);
+                      
                       if (currentSound && typeof currentSound.audio === 'string') {
                         await playSound(currentSound.audio, currentSound.title);
+                      } else if (currentFreq && currentFreq.audioUrl) {
+                        await playSound(currentFreq.audioUrl, currentFreq.title);
                       }
                     }
                   }}
@@ -248,7 +297,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     maxWidth: 400,
     marginTop: -40,
-    marginBottom: 12,
+    marginBottom: 20,
+  },
+  sectionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+    paddingHorizontal: 16,
+  },
+  sectionButton: {
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  sectionButtonActive: {
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    borderColor: '#3B82F6',
+  },
+  sectionButtonText: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: '#9CA3AF',
+  },
+  sectionButtonTextActive: {
+    color: '#60A5FA',
   },
   grid: {
     flexDirection: 'row',

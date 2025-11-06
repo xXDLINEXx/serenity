@@ -116,7 +116,8 @@ export const [AudioProvider, useAudio] = createContextHook<AudioContextValue>(()
     async (url: string, title: string) => {
       try {
         setIsLoading(true);
-        console.log('[Audio] Starting playback:', url);
+        console.log('[Audio] Starting playback for:', title);
+        console.log('[Audio] URL:', url);
 
         if (sound) {
           if (Platform.OS === 'web' && sound instanceof HTMLAudioElement) {
