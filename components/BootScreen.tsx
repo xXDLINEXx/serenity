@@ -346,7 +346,7 @@ export function BootScreen({ onFinish }: BootScreenProps) {
               }]}
             >
               <Image
-                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/gl6fzmc6levqq2gwickz4' }}
+                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/homqt3wopggrbjg949z94' }}
                 style={styles.logoImage}
                 resizeMode="contain"
               />
