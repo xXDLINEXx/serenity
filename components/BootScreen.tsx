@@ -13,9 +13,6 @@ export function BootScreen({ onFinish }: BootScreenProps) {
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
-  const letterAnims = useRef(
-    'Drift into peaceful sleep'.split('').map(() => new Animated.Value(0))
-  ).current;
 
   useEffect(() => {
     Animated.sequence([
@@ -37,41 +34,20 @@ export function BootScreen({ onFinish }: BootScreenProps) {
           useNativeDriver: true,
         }),
       ]),
-      Animated.parallel([
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(glowAnim, {
-              toValue: 1,
-              duration: 1200,
-              useNativeDriver: true,
-            }),
-            Animated.timing(glowAnim, {
-              toValue: 0,
-              duration: 1200,
-              useNativeDriver: true,
-            }),
-          ])
-        ),
-        Animated.stagger(
-          50,
-          letterAnims.map((anim) =>
-            Animated.loop(
-              Animated.sequence([
-                Animated.timing(anim, {
-                  toValue: 1,
-                  duration: 400,
-                  useNativeDriver: true,
-                }),
-                Animated.timing(anim, {
-                  toValue: 0,
-                  duration: 400,
-                  useNativeDriver: true,
-                }),
-              ])
-            )
-          )
-        ),
-      ]),
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(glowAnim, {
+            toValue: 1,
+            duration: 1200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(glowAnim, {
+            toValue: 0,
+            duration: 1200,
+            useNativeDriver: true,
+          }),
+        ])
+      ),
     ]).start();
 
     const timeout = setTimeout(() => {
@@ -94,14 +70,14 @@ export function BootScreen({ onFinish }: BootScreenProps) {
     return () => {
       clearTimeout(timeout);
     };
-  }, [fadeAnim, scaleAnim, logoOpacity, glowAnim, letterAnims, onFinish]);
+  }, [fadeAnim, scaleAnim, logoOpacity, glowAnim, onFinish]);
 
 
 
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#0d0d0d', '#1a1a2e', '#0d0d0d']}
+        colors={['#0A1628', '#1A2A4A', '#2A3A5A']}
         style={styles.gradient}
       >
         <Animated.View
@@ -138,29 +114,6 @@ export function BootScreen({ onFinish }: BootScreenProps) {
             style={styles.logoImage}
             resizeMode="contain"
           />
-          <View style={styles.textContainer}>
-            {'Drift into peaceful sleep'.split('').map((char, index) => (
-              <Animated.Text
-                key={index}
-                style={[
-                  styles.letterText,
-                  {
-                    opacity: letterAnims[index],
-                    transform: [
-                      {
-                        translateY: letterAnims[index].interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0, -8],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-                {char === ' ' ? '\u00A0' : char}
-              </Animated.Text>
-            ))}
-          </View>
         </Animated.View>
       </LinearGradient>
     </View>
@@ -188,19 +141,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 10,
   },
-  textContainer: {
-    flexDirection: 'row',
-    marginTop: 24,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  letterText: {
-    fontSize: 18,
-    color: '#ffffff',
-    fontWeight: '300' as const,
-    letterSpacing: 1,
-  },
   logoImage: {
     width: 400,
     height: 400,
@@ -210,8 +150,8 @@ const styles = StyleSheet.create({
     width: 320,
     height: 320,
     borderRadius: 160,
-    backgroundColor: 'rgba(147, 51, 234, 0.15)',
-    shadowColor: '#9333ea',
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    shadowColor: '#3b82f6',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 40,
