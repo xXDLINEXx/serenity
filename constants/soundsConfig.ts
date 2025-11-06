@@ -54,7 +54,7 @@ export const soundsConfig: SoundConfig[] = [
     title: "Feu de camp",
     type: "sound",
     audio: tryRequire("../media/audio/feu-de-camp.mp3") ?? "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/audio/feu-de-camp.mp3",
-    video: tryRequire("../media/video/feu-de-camp.mp4") ?? "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/video/feu-de-camp.mp4",
+    video: "https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/vr26mlk4l6oqchaekmtwk",
     description: "Crépitement chaleureux du feu",
     benefits: "Sensation de confort et de sécurité"
   },
