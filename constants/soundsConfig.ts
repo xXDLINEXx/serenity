@@ -80,7 +80,7 @@ export const soundsConfig: SoundConfig[] = [
     title: "8–12 Hz",
     type: "frequency",
     audio: tryRequire("../media/frequency/8-to-12-hz.mp3") ?? "https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/8-to-12-hz.mp3",
-    video: "https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/vt8a9igq5m7a4uiqlh9r9",
+    video: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?q=80&w=1632&auto=format&fit=crop",
     frequency: "8–12 Hz",
     description: "Ondes alpha pour relaxation",
     benefits: "Calme mental et créativité"
