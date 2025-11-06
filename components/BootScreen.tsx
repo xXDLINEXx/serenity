@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Dimensions, Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
@@ -282,12 +281,7 @@ export function BootScreen({ onFinish }: BootScreenProps) {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#000000', '#0a0a0a', '#000000']}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-      >
+      <View style={styles.gradient}>
         <Animated.View
           style={[
             styles.logoContainer,
@@ -388,7 +382,7 @@ export function BootScreen({ onFinish }: BootScreenProps) {
             />
           </View>
         </Animated.View>
-      </LinearGradient>
+      </View>
     </View>
   );
 }
@@ -408,6 +402,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#000000',
   },
   logoContainer: {
     alignItems: 'center',
