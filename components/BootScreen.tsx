@@ -18,86 +18,126 @@ export function BootScreen({ onFinish }: BootScreenProps) {
   const particleAnim3 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.sequence([
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 600,
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 40,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+      Animated.timing(glowAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    const pulseLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1500,
           useNativeDriver: true,
         }),
-        Animated.spring(scaleAnim, {
+        Animated.timing(pulseAnim, {
           toValue: 1,
-          tension: 40,
-          friction: 8,
+          duration: 1500,
           useNativeDriver: true,
         }),
-        Animated.timing(glowAnim, {
+      ])
+    );
+
+    const particle1Loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(particleAnim1, {
           toValue: 1,
-          duration: 1200,
+          duration: 2500,
           useNativeDriver: true,
         }),
-      ]),
-      Animated.delay(400),
-      Animated.parallel([
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(pulseAnim, {
-              toValue: 1.08,
-              duration: 1800,
-              useNativeDriver: true,
-            }),
-            Animated.timing(pulseAnim, {
-              toValue: 1,
-              duration: 1800,
-              useNativeDriver: true,
-            }),
-          ])
-        ),
-        Animated.stagger(300, [
-          Animated.loop(
-            Animated.timing(particleAnim1, {
-              toValue: 1,
-              duration: 2500,
-              useNativeDriver: true,
-            })
-          ),
-          Animated.loop(
-            Animated.timing(particleAnim2, {
-              toValue: 1,
-              duration: 3000,
-              useNativeDriver: true,
-            })
-          ),
-          Animated.loop(
-            Animated.timing(particleAnim3, {
-              toValue: 1,
-              duration: 2800,
-              useNativeDriver: true,
-            })
-          ),
-        ]),
-      ]),
-      Animated.delay(1800),
+        Animated.timing(particleAnim1, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    const particle2Loop = Animated.loop(
+      Animated.sequence([
+        Animated.delay(300),
+        Animated.timing(particleAnim2, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(particleAnim2, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    const particle3Loop = Animated.loop(
+      Animated.sequence([
+        Animated.delay(600),
+        Animated.timing(particleAnim3, {
+          toValue: 1,
+          duration: 2800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(particleAnim3, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    pulseLoop.start();
+    particle1Loop.start();
+    particle2Loop.start();
+    particle3Loop.start();
+
+    const timeout = setTimeout(() => {
+      pulseLoop.stop();
+      particle1Loop.stop();
+      particle2Loop.stop();
+      particle3Loop.stop();
+
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 0,
-          duration: 500,
+          duration: 400,
           useNativeDriver: true,
         }),
         Animated.timing(scaleAnim, {
-          toValue: 1.2,
-          duration: 500,
+          toValue: 1.15,
+          duration: 400,
           useNativeDriver: true,
         }),
         Animated.timing(glowAnim, {
           toValue: 0,
-          duration: 500,
+          duration: 400,
           useNativeDriver: true,
         }),
-      ]),
-    ]).start(() => {
-      onFinish();
-    });
+      ]).start(() => {
+        onFinish();
+      });
+    }, 2500);
+
+    return () => {
+      clearTimeout(timeout);
+      pulseLoop.stop();
+      particle1Loop.stop();
+      particle2Loop.stop();
+      particle3Loop.stop();
+    };
   }, [fadeAnim, scaleAnim, glowAnim, pulseAnim, particleAnim1, particleAnim2, particleAnim3, onFinish]);
 
   const particle1Translate = particleAnim1.interpolate({
