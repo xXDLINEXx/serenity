@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#0d0d0d',
   },
   logoContainer: {
     alignItems: 'center',
@@ -115,6 +115,5 @@ const styles = StyleSheet.create({
   logoImage: {
     width: 300,
     height: 300,
-    backgroundColor: 'transparent',
   },
 });
