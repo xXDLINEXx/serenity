@@ -118,6 +118,8 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
     if (!currentMedia) return;
 
     console.log('[FullScreenPlayer] Loading media:', currentMedia.id);
+    console.log('[FullScreenPlayer] Video path:', currentMedia.videoPath);
+    console.log('[FullScreenPlayer] Audio path:', currentMedia.audioPath);
 
     await cleanup();
 
@@ -128,8 +130,13 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
         shouldDuckAndroid: true,
       });
 
+      const audioSource = currentMedia.audioPath.startsWith('http') 
+        ? { uri: currentMedia.audioPath }
+        : (currentMedia.audioPath as any);
+      
+      console.log('[FullScreenPlayer] Loading audio...');
       const { sound } = await Audio.Sound.createAsync(
-        { uri: currentMedia.audioPath },
+        audioSource as any,
         { 
           isLooping: true, 
           volume: volume,
@@ -138,14 +145,19 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
       );
       soundRef.current = sound;
       await sound.playAsync();
-      console.log('[FullScreenPlayer] Audio started');
+      console.log('[FullScreenPlayer] Audio started successfully');
 
       if (videoRef.current) {
-        await videoRef.current.loadAsync({ uri: currentMedia.videoPath }, { shouldPlay: true });
-        console.log('[FullScreenPlayer] Video started');
+        const videoSource = currentMedia.videoPath.startsWith('http')
+          ? { uri: currentMedia.videoPath }
+          : (currentMedia.videoPath as any);
+        console.log('[FullScreenPlayer] Loading video with source:', videoSource);
+        await videoRef.current.loadAsync(videoSource as any, { shouldPlay: true });
+        console.log('[FullScreenPlayer] Video started successfully');
       }
     } catch (error) {
       console.error('[FullScreenPlayer] Error loading media:', error);
+      console.error('[FullScreenPlayer] Error details:', JSON.stringify(error, null, 2));
     }
   };
 
@@ -192,7 +204,7 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
       <Video
         ref={videoRef}
         style={styles.video}
-        source={{ uri: currentMedia.videoPath }}
+        source={(currentMedia.videoPath.startsWith('http') ? { uri: currentMedia.videoPath } : currentMedia.videoPath) as any}
         resizeMode={ResizeMode.COVER}
         isLooping
         isMuted
