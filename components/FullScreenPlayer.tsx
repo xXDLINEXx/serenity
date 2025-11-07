@@ -129,7 +129,7 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
       });
 
       const { sound } = await Audio.Sound.createAsync(
-        currentMedia.audioPath,
+        { uri: currentMedia.audioPath },
         { 
           isLooping: true, 
           volume: volume,
@@ -141,7 +141,7 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
       console.log('[FullScreenPlayer] Audio started');
 
       if (videoRef.current) {
-        await videoRef.current.loadAsync(currentMedia.videoPath, { shouldPlay: true });
+        await videoRef.current.loadAsync({ uri: currentMedia.videoPath }, { shouldPlay: true });
         console.log('[FullScreenPlayer] Video started');
       }
     } catch (error) {
@@ -192,7 +192,7 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
       <Video
         ref={videoRef}
         style={styles.video}
-        source={currentMedia.videoPath}
+        source={{ uri: currentMedia.videoPath }}
         resizeMode={ResizeMode.COVER}
         isLooping
         isMuted
