@@ -1,0 +1,12 @@
+# Ignored by EAS Build
+node_modules
+npm-debug.log
+yarn-error.log
+bun.lockb
+bunfig.toml
+dist
+*.log
+*.cache
+coverage
+.git
+.gitignore
