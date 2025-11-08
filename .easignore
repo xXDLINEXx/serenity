@@ -1,12 +1,19 @@
-# Ignored by EAS Build
-node_modules
-npm-debug.log
-yarn-error.log
-bun.lockb
-bunfig.toml
-dist
-*.log
-*.cache
-coverage
-.git
-.gitignore
+# Exclude native folders (since project already has android/ios folders)
+android/.gradle
+android/app/build
+ios/build
+
+# Prevent uploading unnecessary local files to EAS build
+.expo/
+.expo-shared/
+node_modules/
+
+# Ignore media files from upload (APK will include them locally)
+media/audio/*.mp3
+media/video/*.mp4
+media/frequency/*.mp3
+
+# IDE stuff
+.DS_Store
+.vscode/
+.idea/
