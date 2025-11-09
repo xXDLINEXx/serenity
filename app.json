@@ -64,12 +64,6 @@
       "enabled": false,
       "fallbackToCacheTimeout": 0
     },
-    "extra": {
-      "eas": {
-        "projectId": "c0358eab-fef6-4e73-b894-3110b0086c2e"
-      }
-    },
     "owner": "xxdlinexx"
   }
 }
-
