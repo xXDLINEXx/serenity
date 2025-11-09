@@ -7,12 +7,14 @@ type FullScreenPlayerProps = {
   initialMediaId: string;
 };
 
-export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
+export default function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
   const videoRef = useRef<Video>(null);
 
   useEffect(() => {
     return () => {
-      videoRef.current?.unloadAsync().catch(() => {});
+      if (videoRef.current) {
+        videoRef.current.unloadAsync().catch(() => {});
+      }
     };
   }, []);
 
@@ -23,7 +25,7 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
         source={getVideoSource(initialMediaId)}
         shouldPlay
         isLooping
-        resizeMode={ResizeMode.CONTAIN}
+        resizeMode={ResizeMode.COVER}
         useNativeControls
         style={styles.video}
       />
@@ -32,6 +34,11 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  video: { flex: 1 },
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  video: {
+    flex: 1,
+  },
 });

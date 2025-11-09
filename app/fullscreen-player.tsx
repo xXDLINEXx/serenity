@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import { FullScreenPlayer } from "@/components/FullScreenPlayer";
+import FullScreenPlayer from "./FullScreenPlayer";
 
 export default function Screen() {
   const params = useLocalSearchParams<{ mediaId: string }>();
