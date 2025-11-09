@@ -17,7 +17,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "app.rork.serenity",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"],
+        "UIBackgroundModes": [
+          "audio"
+        ],
         "NSMicrophoneUsageDescription": "Allow Serenity to access your microphone for audio playback."
       }
     },
@@ -64,6 +66,11 @@
       "enabled": false,
       "fallbackToCacheTimeout": 0
     },
-    "owner": "xxdlinexx"
+    "owner": "xxdlinexx",
+    "extra": {
+      "eas": {
+        "projectId": "055a223f-6506-4dfc-a8c8-356a0f091b65"
+      }
+    }
   }
 }

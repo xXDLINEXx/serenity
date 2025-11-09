@@ -10,9 +10,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
-import { SoundList } from '@/components/SoundList';
-import { SoundPlayer } from '@/components/SoundPlayer';
-import { SoundConfig } from '@/types/soundsConfig';
+import { SoundList } from '../components/SoundList';
+import { SoundPlayer } from '../components/SoundPlayer';
+import { SoundConfig } from '../types/soundsConfig';
 
 export default function CDNPlayerScreen() {
   const router = useRouter();
