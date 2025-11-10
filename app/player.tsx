@@ -22,7 +22,7 @@ import {
 import { useAudio } from '@/contexts/AudioContext';
 import { sleepSounds, SleepSound } from '@/constants/sleepSounds';
 import { healingFrequencies, HealingFrequency } from '@/constants/frequencies';
-import { getAudioSource } from '../utils/tryRequire';
+import { getAudioSource, getFrequencySource } from '../utils/tryRequire';
 
 const { width, height } = Dimensions.get('window');
 
@@ -108,8 +108,19 @@ export default function PlayerScreen() {
     let url = '';
 
     try {
-      // 🔥 Utilisation de l'id réel (pas l'URL directe)
-      const source = getAudioSource(item.id);
+      let source: any;
+
+      // 🔊 Sons normaux (pluie, feu, vent...)
+      if (type === 'sound') {
+        source = getAudioSource(item.id);
+      }
+      // 🎶 Fréquences (Hz)
+      else if (type === 'frequency') {
+        source = getFrequencySource(item.id);
+      } else {
+        throw new Error(`Type inconnu: ${type}`);
+      }
+
       url = source.default || source;
     } catch (err) {
       console.warn(`[PlayerScreen] Fichier introuvable pour l'id: ${item.id}`, err);
@@ -225,7 +236,7 @@ export default function PlayerScreen() {
   );
 }
 
-// Styles (inchangés ou adaptés selon ta version)
+// Styles
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   gradient: { flex: 1 },
