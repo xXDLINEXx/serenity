@@ -1,19 +1,20 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Video, ResizeMode } from 'expo-av';
+import { Video } from 'expo-video';
 import { getVideoSource } from '@/utils/tryRequire';
 
 type FullScreenPlayerProps = {
   initialMediaId: string;
 };
 
-export default function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
+export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
   const videoRef = useRef<Video>(null);
 
   useEffect(() => {
     return () => {
       if (videoRef.current) {
-        videoRef.current.unloadAsync().catch(() => {});
+        videoRef.current.stopAsync?.().catch(() => {});
+        videoRef.current.unloadAsync?.().catch(() => {});
       }
     };
   }, []);
@@ -25,8 +26,8 @@ export default function FullScreenPlayer({ initialMediaId }: FullScreenPlayerPro
         source={getVideoSource(initialMediaId)}
         shouldPlay
         isLooping
-        resizeMode={ResizeMode.COVER}
-        useNativeControls
+        isMuted={false}
+        resizeMode="cover"
         style={styles.video}
       />
     </View>
