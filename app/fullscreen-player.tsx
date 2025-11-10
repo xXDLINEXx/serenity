@@ -1,8 +1,9 @@
 import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import FullScreenPlayer from '../components/FullScreenPlayer';
+import FullscreenPlayer from '../components/FullscreenPlayer'; // ✅ chemin cohérent
 
-export default function FullScreenPlayerScreen() {
+export default function FullscreenPlayerScreen() {
   const params = useLocalSearchParams<{ mediaId: string }>();
-  return <FullScreenPlayer initialMediaId={params.mediaId} />;
+
+  return <FullscreenPlayer initialMediaId={params.mediaId} />;
 }
