@@ -1,182 +1,60 @@
-import { tryRequire } from "@/utils/tryRequire";
-import { SoundConfig } from "@/types/soundsConfig";
+import { getAudioSource, getVideoSource } from '../utils/tryRequire';
 
-export const sounds: SoundConfig[] = [
+export const soundsConfig = [
   {
     id: "pluie-douce",
     title: "Pluie douce",
-    type: "sound",
-    audio: tryRequire("../media/audio/pluie-douce.mp3"),
-    video: tryRequire("../media/video/pluie-douce.mp4"),
-    description: "Pluie légère sur les feuilles",
-    benefits: "Masque les bruits ambiants et facilite l'endormissement"
-  },
-  {
-    id: "vague-de-locean",
-    title: "Vague de l'océan",
-    type: "sound",
-    audio: tryRequire("../media/audio/vague-de-locean.mp3"),
-    video: tryRequire("../media/video/vague-de-locean.mp4"),
-    description: "Vagues rythmiques de l'océan",
-    benefits: "Calme l'esprit et améliore le sommeil"
+    description: "Le son apaisant d’une pluie légère tombant doucement.",
+    audio: getAudioSource("pluie-douce"),
+    video: getVideoSource("pluie-douce"),
   },
   {
     id: "feu-de-camp",
     title: "Feu de camp",
-    type: "sound",
-    audio: tryRequire("../media/audio/feu-de-camp.mp3"),
-    video: tryRequire("../media/video/feu-de-camp.mp4"),
-    description: "Crépitement chaleureux du feu",
-    benefits: "Sensation de confort et de sécurité"
+    description: "Le crépitement réconfortant du feu de bois.",
+    audio: getAudioSource("feu-de-camp"),
+    video: getVideoSource("feu-de-camp"),
   },
   {
     id: "foret-paisible",
     title: "Forêt paisible",
-    type: "sound",
-    audio: tryRequire("../media/audio/foret-paisible.mp3"),
-    video: tryRequire("../media/video/foret-paisible.mp4"),
-    description: "Oiseaux et nature de la forêt",
-    benefits: "Connexion avec la nature et paix intérieure"
+    description: "Les bruits d’oiseaux et le vent dans les arbres.",
+    audio: getAudioSource("foret-paisible"),
+    video: getVideoSource("foret-paisible"),
+  },
+  {
+    id: "vague-de-locean",
+    title: "Vagues de l’océan",
+    description: "Le roulis régulier des vagues sur la plage.",
+    audio: getAudioSource("vague-de-locean"),
+    video: getVideoSource("vague-de-locean"),
   },
   {
     id: "vent-leger",
     title: "Vent léger",
-    type: "sound",
-    audio: tryRequire("../media/audio/vent-leger.mp3"),
-    video: tryRequire("../media/video/vent-leger.mp4"),
-    description: "Son doux du vent dans les arbres",
-    benefits: "Réduit le stress et favorise la relaxation"
-  },
-  {
-    id: "orage-apaisant",
-    title: "Orage apaisant",
-    type: "sound",
-    audio: tryRequire("../media/audio/orage-apaisant.mp3"),
-    video: tryRequire("../media/video/orage-apaisant.mp4"),
-    description: "Tonnerre lointain et pluie",
-    benefits: "Relaxation profonde et sommeil réparateur"
+    description: "Une brise douce et apaisante.",
+    audio: getAudioSource("vent-leger"),
+    video: getVideoSource("vent-leger"),
   },
   {
     id: "riviere-calme",
     title: "Rivière calme",
-    type: "sound",
-    audio: tryRequire("../media/audio/riviere-calme.mp3"),
-    video: tryRequire("../media/video/riviere-calme.mp4"),
-    description: "Écoulement paisible d'une rivière",
-    benefits: "Apaise les tensions et favorise la méditation"
+    description: "Le murmure tranquille d’un cours d’eau.",
+    audio: getAudioSource("riviere-calme"),
+    video: getVideoSource("riviere-calme"),
+  },
+  {
+    id: "orage-apaisant",
+    title: "Orage apaisant",
+    description: "Le grondement lointain du tonnerre accompagné de la pluie.",
+    audio: getAudioSource("orage-apaisant"),
+    video: getVideoSource("orage-apaisant"),
   },
   {
     id: "bruit-blanc",
     title: "Bruit blanc",
-    type: "sound",
-    audio: tryRequire("../media/audio/bruit-blanc.mp3"),
-    video: tryRequire("../media/video/bruit-blanc.mp4"),
-    description: "Bruit constant et uniforme",
-    benefits: "Masque les distractions et améliore la concentration"
+    description: "Un son constant qui aide à se concentrer ou à s’endormir.",
+    audio: getAudioSource("bruit-blanc"),
+    video: getVideoSource("bruit-blanc"),
   },
-
-  {
-    id: "4-7hz-with-417hz-639hz",
-    title: "4–7 Hz – Avec 417 & 639 Hz",
-    type: "frequency",
-    audio: tryRequire("../media/frequency/4-7hz-with-417hz-639hz.mp3"),
-    video: tryRequire("../media/video/frequence.mp4"),
-    frequency: "4–7 Hz",
-    description: "Ondes thêta pour méditation profonde",
-    benefits: "Libération émotionnelle et harmonisation"
-  },
-  {
-    id: "8-to-12-hz",
-    title: "8–12 Hz",
-    type: "frequency",
-    audio: tryRequire("../media/frequency/8-to-12-hz.mp3"),
-    video: tryRequire("../media/video/frequence.mp4"),
-    frequency: "8–12 Hz",
-    description: "Ondes alpha pour relaxation",
-    benefits: "Calme mental et créativité"
-  },
-  {
-    id: "10hz",
-    title: "10 Hz",
-    type: "frequency",
-    audio: tryRequire("../media/frequency/10hz.mp3"),
-    video: tryRequire("../media/video/frequence.mp4"),
-    frequency: "10 Hz",
-    description: "Fréquence de Schumann",
-    benefits: "Équilibre naturel et régénération"
-  },
-  {
-    id: "33hz",
-    title: "33 Hz",
-    type: "frequency",
-    audio: tryRequire("../media/frequency/33hz.mp3"),
-    video: tryRequire("../media/video/frequence.mp4"),
-    frequency: "33 Hz",
-    description: "Fréquence de Christ",
-    benefits: "Éveil spirituel et compassion"
-  },
-  {
-    id: "66hz",
-    title: "66 Hz",
-    type: "frequency",
-    audio: tryRequire("../media/frequency/66hz.mp3"),
-    video: tryRequire("../media/video/frequence.mp4"),
-    frequency: "66 Hz",
-    description: "Fréquence d'activation",
-    benefits: "Énergie vitale et alignement"
-  },
-  {
-    id: "396-hz-417-hz-639hz",
-    title: "396/417/639 Hz",
-    type: "frequency",
-    audio: tryRequire("../media/frequency/396-hz-417-hz-639hz.mp3"),
-    video: tryRequire("../media/video/frequence.mp4"),
-    frequency: "396/417/639 Hz",
-    description: "Trio de fréquences solfège",
-    benefits: "Libération, transformation et connexion"
-  },
-  {
-    id: "417hz",
-    title: "417 Hz",
-    type: "frequency",
-    audio: tryRequire("../media/frequency/417hz.mp3"),
-    video: tryRequire("../media/video/frequence.mp4"),
-    frequency: "417 Hz",
-    description: "Fréquence de transformation",
-    benefits: "Facilite le changement et élimine les blocages"
-  },
-  {
-    id: "852hz",
-    title: "852 Hz",
-    type: "frequency",
-    audio: tryRequire("../media/frequency/852hz.mp3"),
-    video: tryRequire("../media/video/frequence.mp4"),
-    frequency: "852 Hz",
-    description: "Éveil de l'intuition",
-    benefits: "Clarté mentale et connexion spirituelle"
-  },
-  {
-    id: "1441hz",
-    title: "1441 Hz",
-    type: "frequency",
-    audio: tryRequire("../media/frequency/1441hz.mp3"),
-    video: tryRequire("../media/video/frequence.mp4"),
-    frequency: "1441 Hz",
-    description: "Fréquence de Fibonacci",
-    benefits: "Harmonie divine et équilibre cosmique"
-  },
-  {
-    id: "2772hz",
-    title: "2772 Hz",
-    type: "frequency",
-    audio: tryRequire("../media/frequency/2772hz.mp3"),
-    video: tryRequire("../media/video/frequence.mp4"),
-    frequency: "2772 Hz",
-    description: "Fréquence d'ascension",
-    benefits: "Élévation spirituelle et guérison"
-  }
 ];
-
-export const soundsConfig = sounds;
-
-export type SoundEntry = SoundConfig;
