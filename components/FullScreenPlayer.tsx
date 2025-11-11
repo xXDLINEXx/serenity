@@ -25,9 +25,29 @@ interface FullScreenPlayerProps {
   initialMediaId: string;
 }
 
-function toSource(src: number | string | null | undefined) {
-  if (!src) return undefined;
-  return typeof src === 'number' ? src : { uri: src };
+function toSource(src: number | string | { uri: string } | null | undefined) {
+  if (!src) {
+    console.warn('[FullScreenPlayer] toSource: No source provided');
+    return undefined;
+  }
+  
+  if (typeof src === 'number') {
+    console.log('[FullScreenPlayer] toSource: Using local asset (number)');
+    return src;
+  }
+  
+  if (typeof src === 'object' && 'uri' in src) {
+    console.log('[FullScreenPlayer] toSource: Using URI from object:', src.uri);
+    return src.uri ? { uri: src.uri } : undefined;
+  }
+  
+  if (typeof src === 'string') {
+    console.log('[FullScreenPlayer] toSource: Using string URI:', src);
+    return { uri: src };
+  }
+  
+  console.warn('[FullScreenPlayer] toSource: Unknown source type:', typeof src, src);
+  return undefined;
 }
 
 export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
@@ -138,8 +158,8 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
     }
 
     console.log('[FullScreenPlayer] Loading media:', currentMedia.id);
-    console.log('[FullScreenPlayer] Video:', currentMedia.video);
-    console.log('[FullScreenPlayer] Audio:', currentMedia.audio);
+    console.log('[FullScreenPlayer] Video raw:', currentMedia.video);
+    console.log('[FullScreenPlayer] Audio raw:', currentMedia.audio);
 
     await cleanup();
 
@@ -152,11 +172,16 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
 
       console.log('[FullScreenPlayer] Loading audio...');
       const audioSource = toSource(currentMedia.audio);
+      console.log('[FullScreenPlayer] Audio source after toSource:', audioSource);
+      
       if (!audioSource) {
-        console.warn('[FullScreenPlayer] No audio source available');
+        console.error('[FullScreenPlayer] No audio source available after conversion');
+        console.error('[FullScreenPlayer] Original audio value:', currentMedia.audio);
+        console.error('[FullScreenPlayer] Audio type:', typeof currentMedia.audio);
         return;
       }
       
+      console.log('[FullScreenPlayer] Creating Audio.Sound with source:', JSON.stringify(audioSource));
       const { sound } = await Audio.Sound.createAsync(
         audioSource as any,
         { 
@@ -169,14 +194,20 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
       await sound.playAsync();
       console.log('[FullScreenPlayer] Audio started successfully');
 
-      if (videoSource && videoPlayer) {
+      const videoSourceResolved = toSource(currentMedia.video);
+      console.log('[FullScreenPlayer] Video source after toSource:', videoSourceResolved);
+      
+      if (videoSourceResolved && videoPlayer) {
         console.log('[FullScreenPlayer] Loading video...');
-        videoPlayer.replace(videoSource as any);
+        videoPlayer.replace(videoSourceResolved as any);
         videoPlayer.play();
         console.log('[FullScreenPlayer] Video loaded successfully');
+      } else {
+        console.log('[FullScreenPlayer] No video to load or no player');
       }
     } catch (error) {
       console.error('[FullScreenPlayer] Error loading media:', error);
+      console.error('[FullScreenPlayer] Error details:', JSON.stringify(error, null, 2));
     }
   };
 
