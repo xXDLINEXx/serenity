@@ -108,6 +108,7 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
 
   useFocusEffect(
     React.useCallback(() => {
+      console.log('[FullScreenPlayer] Screen focused');
       return () => {
         console.log('[FullScreenPlayer] Screen unfocused, cleaning up');
         cleanup();
@@ -155,18 +156,23 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
   };
 
   const cleanup = async () => {
+    console.log('[FullScreenPlayer] Cleanup called');
     if (soundRef.current) {
       try {
-        await soundRef.current.stopAsync();
-        await soundRef.current.unloadAsync();
+        console.log('[FullScreenPlayer] Stopping and unloading sound');
+        const soundToClean = soundRef.current;
+        soundRef.current = null;
+        await soundToClean.stopAsync();
+        await soundToClean.unloadAsync();
+        console.log('[FullScreenPlayer] Sound cleaned up successfully');
       } catch (error) {
         console.error('[FullScreenPlayer] Error cleaning up sound:', error);
       }
-      soundRef.current = null;
     }
     
     if (controlsTimeoutRef.current) {
       clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = null;
     }
   };
 
@@ -180,7 +186,9 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
     console.log('[FullScreenPlayer] Video raw:', currentMedia.video);
     console.log('[FullScreenPlayer] Audio raw:', currentMedia.audio);
 
+    console.log('[FullScreenPlayer] Cleaning up previous media...');
     await cleanup();
+    console.log('[FullScreenPlayer] Cleanup complete, starting new media load');
     setIsLoadingVideo(true);
 
     try {
