@@ -134,7 +134,9 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
   useEffect(() => {
     if (showControls) {
       fadeAnim.setValue(1);
-      resetControlsTimeout();
+      if (!isLoadingVideo) {
+        resetControlsTimeout();
+      }
     } else {
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -143,15 +145,17 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
       }).start();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showControls]);
+  }, [showControls, isLoadingVideo]);
 
   const resetControlsTimeout = () => {
     if (controlsTimeoutRef.current) {
       clearTimeout(controlsTimeoutRef.current);
     }
-    controlsTimeoutRef.current = setTimeout(() => {
-      setShowControls(false);
-    }, 4000);
+    if (!isLoadingVideo) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 4000);
+    }
   };
 
   const handleScreenPress = () => {
@@ -255,7 +259,10 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
         console.log('[FullScreenPlayer] No video to load');
       }
       
+      console.log('[FullScreenPlayer] Media loaded, showing controls');
       setIsLoadingVideo(false);
+      setShowControls(true);
+      resetControlsTimeout();
     } catch (error) {
       console.error('[FullScreenPlayer] Error loading media:', error);
       console.error('[FullScreenPlayer] Error details:', JSON.stringify(error, null, 2));
