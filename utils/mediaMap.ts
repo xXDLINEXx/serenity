@@ -115,7 +115,7 @@ export const mediaMap: MediaItem[] = [
     thumbnail: 'https://images.unsplash.com/photo-1470790376778-a9fbc86d70e2?w=400&q=80',
   },
   {
-    id: '396-417-639',
+    id: '396-hz-417-hz-639hz',
     title: '396/417/639 Hz',
     description: 'Triple fréquence Solfège',
     audioPath: tryRequire('../media/frequency/396-hz-417-hz-639hz.mp3'),

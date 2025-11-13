@@ -27,7 +27,7 @@ const getFrequencyImage = (frequencyId: string): string => {
     '10hz': 'https://images.unsplash.com/photo-1534551767192-78b8dd45b51b?w=400&q=80',
     '33hz': 'https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=400&q=80',
     '66hz': 'https://images.unsplash.com/photo-1470790376778-a9fbc86d70e2?w=400&q=80',
-    '396-417-639': 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80',
+    '396-hz-417-hz-639hz': 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80',
     '417hz': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80',
     '852hz': 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&q=80',
     '1441hz': 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=400&q=80',

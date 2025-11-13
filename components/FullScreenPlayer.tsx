@@ -10,10 +10,11 @@ import {
   Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { VideoView, useVideoPlayer } from 'expo-video';
+import { VideoView, useVideoPlayer, VideoSource } from 'expo-video';
 import { Audio } from 'expo-av';
 import { useRouter, useFocusEffect } from 'expo-router';
 import * as NavigationBar from 'expo-navigation-bar';
+import * as SystemUI from 'expo-system-ui';
 import { X, SkipForward, SkipBack } from 'lucide-react-native';
 import { soundsConfig } from '@/constants/soundsConfig';
 import { SoundConfig } from '@/types/soundsConfig';
@@ -74,16 +75,13 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
     soundsConfig.find(m => m.id === initialMediaId)
   );
   const [showControls, setShowControls] = useState<boolean>(true);
-  const [videoSource, setVideoSource] = useState<{ uri: string } | undefined>(undefined);
+  const [videoSource, setVideoSource] = useState<VideoSource | undefined>(undefined);
   const [isLoadingVideo, setIsLoadingVideo] = useState<boolean>(true);
-  const isPlayerActive = useRef<boolean>(false);
-  
-  const videoPlayer = useVideoPlayer(videoSource || { uri: '' }, player => {
-    if (videoSource && videoSource.uri) {
+  const videoPlayer = useVideoPlayer(videoSource, player => {
+    if (videoSource) {
       player.loop = true;
       player.muted = true;
       player.play();
-      isPlayerActive.current = true;
     }
   });
   
@@ -97,6 +95,7 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
     
     if (Platform.OS === 'android') {
       NavigationBar.setVisibilityAsync('hidden').catch(console.error);
+      SystemUI.setBackgroundColorAsync('transparent').catch(console.error);
     }
     
     return () => {
@@ -112,16 +111,8 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
       return () => {
         console.log('[FullScreenPlayer] Screen unfocused, cleaning up');
         cleanup();
-        if (isPlayerActive.current && videoPlayer) {
-          try {
-            videoPlayer.pause();
-            isPlayerActive.current = false;
-          } catch (error) {
-            console.error('[FullScreenPlayer] Error pausing video on unfocus:', error);
-          }
-        }
       };
-    }, [videoPlayer])
+    }, [])
   );
 
   useEffect(() => {
@@ -195,8 +186,6 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
     try {
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,
-        staysActiveInBackground: true,
-        shouldDuckAndroid: true,
       });
 
       console.log('[FullScreenPlayer] Loading audio...');
@@ -253,14 +242,6 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
 
   const handleStop = async () => {
     console.log('[FullScreenPlayer] Stop button pressed');
-    try {
-      if (isPlayerActive.current && videoPlayer) {
-        videoPlayer.pause();
-        isPlayerActive.current = false;
-      }
-    } catch (error) {
-      console.error('[FullScreenPlayer] Error pausing video:', error);
-    }
     await cleanup();
     if (router.canGoBack()) {
       router.back();

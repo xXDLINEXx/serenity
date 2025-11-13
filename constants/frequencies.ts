@@ -59,7 +59,7 @@ export const healingFrequencies: HealingFrequency[] = [
     audioUrl: tryRequire('../media/frequency/66hz.mp3') ?? 'https://cdn.jsdelivr.net/gh/xXDLINEXx/serenity/media/frequency/66hz.mp3'
   },
   { 
-    id: '396-417-639', 
+    id: '396-hz-417-hz-639hz', 
     frequency: '396/417/639 Hz', 
     title: '396/417/639 Hz', 
     description: 'Triple fréquence Solfège',
