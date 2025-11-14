@@ -193,10 +193,13 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
   };
 
   const handleScreenPress = () => {
-    setShowControls(prev => !prev);
-    if (!showControls) {
-      resetControlsTimeout();
-    }
+    setShowControls(prev => {
+      const newValue = !prev;
+      if (newValue && !isLoadingVideo) {
+        resetControlsTimeout();
+      }
+      return newValue;
+    });
   };
 
   const cleanup = async () => {
