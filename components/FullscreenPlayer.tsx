@@ -24,26 +24,47 @@ import Slider from "@react-native-community/slider";
 
 const { width, height } = Dimensions.get("window");
 
-// Format mm:ss
 const formatTime = (seconds: number) => {
   if (!seconds || Number.isNaN(seconds)) return "0:00";
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
 };
 
-// Converter
 async function toSourceAsync(src) {
   if (!src) return undefined;
 
+  // Cas 1 : require() local → number
   if (typeof src === "number") {
-    const asset = Asset.fromModule(src);
-    await asset.downloadAsync();
-    return { uri: asset.uri };
+    try {
+      const asset = Asset.fromModule(src);
+      await asset.downloadAsync().catch(() => {});
+      return { uri: asset.uri };
+    } catch (e) {
+      console.log("Failed local asset:", e);
+    }
   }
 
-  if (typeof src === "string") return { uri: src };
-  if (typeof src === "object" && src.uri) return src;
+  // Cas 2 : URI complète http ou https (Metro, remote…)
+  if (typeof src === "string") {
+    if (src.startsWith("http://") || src.startsWith("https://")) {
+      return { uri: src };
+    }
+
+    // Cas 3 : chemin relatif "../media/..."
+    try {
+      const required = require(src);
+      const asset = Asset.fromModule(required);
+      await asset.downloadAsync().catch(() => {});
+      return { uri: asset.uri };
+    } catch (_) {
+      // fallback → utilise la string comme URI
+      return { uri: src };
+    }
+  }
+
+  // Cas 4 : objet { uri }
+  if (typeof src === "object" && src.uri) return { uri: src.uri };
 
   return undefined;
 }
@@ -56,17 +77,16 @@ export function FullScreenPlayer({ initialMediaId }) {
     soundsConfig.find((m) => m.id === initialMediaId)
   );
 
-  const [showControls, setShowControls] = useState(true);
   const [videoSource, setVideoSource] = useState(undefined);
   const [sliderValue, setSliderValue] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
+  const [showControls, setShowControls] = useState(true);
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const controlsTimeoutRef = useRef(null);
   const soundRef = useRef(null);
   const isCleaningRef = useRef(false);
 
-  // Video player
   const videoPlayer = useVideoPlayer(videoSource, (player) => {
     if (videoSource) {
       player.loop = true;
@@ -81,19 +101,18 @@ export function FullScreenPlayer({ initialMediaId }) {
   const { isPlaying } = useEvent(videoPlayer, "playingChange", {
     isPlaying: videoPlayer?.playing ?? false,
   });
-
   const { currentTime = 0 } = useEvent(videoPlayer, "timeUpdate", {
     currentTime: videoPlayer?.currentTime ?? 0,
   });
 
   const duration = videoPlayer?.duration ?? 0;
 
-  // Sync slider with video
+  // Sync slider
   useEffect(() => {
     if (!isSeeking) setSliderValue(currentTime);
   }, [currentTime, isSeeking]);
 
-  // First load
+  // Setup on mount
   useEffect(() => {
     loadMedia();
 
@@ -108,12 +127,10 @@ export function FullScreenPlayer({ initialMediaId }) {
     };
   }, []);
 
-  // Cleanup when navigating away
+  // Cleanup on leaving screen
   useFocusEffect(
     React.useCallback(() => {
-      return () => {
-        cleanup();
-      };
+      return () => cleanup();
     }, [])
   );
 
@@ -125,7 +142,7 @@ export function FullScreenPlayer({ initialMediaId }) {
     if (currentMedia) loadMedia();
   }, [currentMedia?.id]);
 
-  // Auto-hide controls (4s)
+  // Auto-hide controls
   useEffect(() => {
     if (showControls) {
       fadeAnim.setValue(1);
@@ -150,12 +167,10 @@ export function FullScreenPlayer({ initialMediaId }) {
     };
   }, [showControls]);
 
-  const handleScreenPress = () => {
-    setShowControls((prev) => !prev);
-  };
+  const handleScreenPress = () => setShowControls((p) => !p);
 
   // ===========================================================
-  // 🔥 CLEANUP AUDIO & VIDEO (PERFECT)
+  // CLEANUP AUDIO + VIDEO
   // ===========================================================
   const cleanup = async () => {
     if (isCleaningRef.current) return;
@@ -184,16 +199,15 @@ export function FullScreenPlayer({ initialMediaId }) {
 
     // Stop video
     try {
-      if (videoPlayerRef.current) videoPlayerRef.current.pause();
+      videoPlayerRef.current?.pause();
     } catch (_) {}
 
     setVideoSource(undefined);
-
     isCleaningRef.current = false;
   };
 
   // ===========================================================
-  // 🔥 LOAD MEDIA (audio OR frequency supported)
+  // LOAD MEDIA (audio OR frequency)
   // ===========================================================
   const loadMedia = async () => {
     await cleanup();
@@ -203,11 +217,11 @@ export function FullScreenPlayer({ initialMediaId }) {
         playsInSilentModeIOS: true,
       });
 
-      // Choose audio or frequency
+      // audio or frequency
       const rawAudio = currentMedia.audio ?? currentMedia.frequency;
-      const audioSource = await toSourceAsync(rawAudio);
+      const audioSrc = await toSourceAsync(rawAudio);
 
-      const { sound } = await Audio.Sound.createAsync(audioSource, {
+      const { sound } = await Audio.Sound.createAsync(audioSrc, {
         isLooping: true,
         volume: 1.0,
         shouldPlay: false,
@@ -216,12 +230,13 @@ export function FullScreenPlayer({ initialMediaId }) {
       soundRef.current = sound;
       await sound.playAsync();
 
-      const videoAsset = await toSourceAsync(currentMedia.video);
-      if (videoAsset) setVideoSource({ uri: videoAsset.uri });
+      // video
+      const videoSrc = await toSourceAsync(currentMedia.video);
+      if (videoSrc) setVideoSource({ uri: videoSrc.uri });
 
       setShowControls(true);
     } catch (e) {
-      console.error("LOAD ERROR:", e);
+      console.log("LOAD ERROR:", e);
     }
   };
 
@@ -234,14 +249,14 @@ export function FullScreenPlayer({ initialMediaId }) {
   };
 
   const handleNext = () => {
-    const idx = soundsConfig.findIndex((s) => s.id === currentMedia.id);
-    if (idx < soundsConfig.length - 1)
-      setCurrentMedia(soundsConfig[idx + 1]);
+    const i = soundsConfig.findIndex((s) => s.id === currentMedia.id);
+    if (i < soundsConfig.length - 1)
+      setCurrentMedia(soundsConfig[i + 1]);
   };
 
   const handlePrevious = () => {
-    const idx = soundsConfig.findIndex((s) => s.id === currentMedia.id);
-    if (idx > 0) setCurrentMedia(soundsConfig[idx - 1]);
+    const i = soundsConfig.findIndex((s) => s.id === currentMedia.id);
+    if (i > 0) setCurrentMedia(soundsConfig[i - 1]);
   };
 
   const handlePlayPause = async () => {
@@ -257,13 +272,13 @@ export function FullScreenPlayer({ initialMediaId }) {
   };
 
   const handleSeekComplete = async (value) => {
-    const position = value;
+    const pos = value;
 
     if (videoPlayerRef.current)
-      videoPlayerRef.current.currentTime = position;
+      videoPlayerRef.current.currentTime = pos;
 
     if (soundRef.current)
-      await soundRef.current.setPositionAsync(position * 1000);
+      await soundRef.current.setPositionAsync(pos * 1000);
 
     setIsSeeking(false);
   };
@@ -299,9 +314,7 @@ export function FullScreenPlayer({ initialMediaId }) {
           <View style={styles.headerContent}>
             <View>
               <Text style={styles.title}>{currentMedia.title}</Text>
-              <Text style={styles.description}>
-                {currentMedia.description}
-              </Text>
+              <Text style={styles.description}>{currentMedia.description}</Text>
             </View>
 
             <TouchableOpacity style={styles.closeButton} onPress={handleStop}>
@@ -360,6 +373,7 @@ export function FullScreenPlayer({ initialMediaId }) {
             </TouchableOpacity>
           </View>
 
+          {/* STOP */}
           <View style={styles.stopRow}>
             <TouchableOpacity
               style={[styles.controlButton, styles.stopButton]}
