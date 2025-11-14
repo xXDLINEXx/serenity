@@ -1,559 +1,173 @@
-import React, { useEffect, useState, useRef } from 'react';
+// FullScreenPlayer.tsx — OPTION A (audio 100% via AudioContext)
+
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   StatusBar,
-  Platform,
-  Animated,
   Dimensions,
   Pressable,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { VideoView, useVideoPlayer, VideoSource } from 'expo-video';
-import { Audio } from 'expo-av';
-import { useRouter, useFocusEffect } from 'expo-router';
-import * as NavigationBar from 'expo-navigation-bar';
-import * as SystemUI from 'expo-system-ui';
-import { X, SkipForward, SkipBack, Play, Pause } from 'lucide-react-native';
-import { soundsConfig } from '@/constants/soundsConfig';
-import { SoundConfig } from '@/types/soundsConfig';
-import { Asset } from 'expo-asset';
-import { useEvent } from 'expo';
-import Slider from '@react-native-community/slider';
+  StyleSheet,
+  Animated,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { VideoView, useVideoPlayer } from "expo-video";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { SkipBack, SkipForward, Play, Pause, X } from "lucide-react-native";
+import { soundsConfig } from "@/constants/soundsConfig";
+import { useAudio } from "@/contexts/AudioContext";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
-interface FullScreenPlayerProps {
-  initialMediaId: string;
-}
-
-const formatTime = (seconds: number) => {
-  if (!seconds || Number.isNaN(seconds)) return '0:00';
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-};
-
-async function toSourceAsync(
-  src: number | string | { uri: string } | null | undefined
-): Promise<string | { uri: string } | undefined> {
-  if (!src) {
-    console.warn('[FullScreenPlayer] toSourceAsync: No source provided');
-    return undefined;
-  }
-
-  if (typeof src === 'number') {
-    console.log('[FullScreenPlayer] toSourceAsync: Converting local asset to URI');
-    try {
-      const asset = Asset.fromModule(src);
-      await asset.downloadAsync();
-      console.log('[FullScreenPlayer] toSourceAsync: Asset URI:', asset.uri);
-      if (!asset.uri) {
-        console.error('[FullScreenPlayer] Asset has no URI');
-        return undefined;
-      }
-      return { uri: asset.uri };
-    } catch (error) {
-      console.error('[FullScreenPlayer] toSourceAsync: Failed to load asset:', error);
-      return undefined;
-    }
-  }
-
-  if (typeof src === 'object' && 'uri' in src) {
-    console.log('[FullScreenPlayer] toSourceAsync: Using URI from object:', src.uri);
-    if (!src.uri) {
-      console.error('[FullScreenPlayer] Object has empty URI');
-      return undefined;
-    }
-    return src;
-  }
-
-  if (typeof src === 'string') {
-    console.log('[FullScreenPlayer] toSourceAsync: Using string URI:', src);
-    return { uri: src };
-  }
-
-  console.warn('[FullScreenPlayer] toSourceAsync: Unknown source type:', typeof src, src);
-  return undefined;
-}
-
-export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
+export default function FullScreenPlayer() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { mediaId } = useLocalSearchParams<{ mediaId: string }>();
 
-  const [currentMedia, setCurrentMedia] = useState<SoundConfig | undefined>(() =>
-    soundsConfig.find(m => m.id === initialMediaId)
+  const { playSound, pauseSound, stopSound, isPlaying } = useAudio();
+
+  const [currentIndex, setCurrentIndex] = useState(
+    soundsConfig.findIndex((s) => s.id === mediaId)
   );
-  const [showControls, setShowControls] = useState<boolean>(true);
-  const [videoSource, setVideoSource] = useState<VideoSource | undefined>(undefined);
-  const [isLoadingVideo, setIsLoadingVideo] = useState<boolean>(false);
 
-  const [sliderValue, setSliderValue] = useState(0);
-  const [isSeeking, setIsSeeking] = useState(false);
+  const fade = useRef(new Animated.Value(1)).current;
+  const controlsTimer = useRef<NodeJS.Timeout | null>(null);
+  const [controlsVisible, setControlsVisible] = useState(true);
 
-  const videoPlayer = useVideoPlayer(videoSource, player => {
-    if (videoSource) {
-      player.loop = true;
-      player.muted = true;
-      player.timeUpdateEventInterval = 0.5;
-      player.play();
-    }
+  const current = soundsConfig[currentIndex];
+
+  // 🎬 Video Player (jamais de son, muted)
+  const videoPlayer = useVideoPlayer(current.video, (player) => {
+    player.loop = true;
+    player.muted = true;
+    player.play();
   });
 
-  const soundRef = useRef<Audio.Sound | null>(null);
-  const videoPlayerRef = useRef(videoPlayer);
-  const fadeAnimRef = useRef(new Animated.Value(1));
-  const fadeAnim = fadeAnimRef.current;
-  const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isCleaningUpRef = useRef(false);
-
-  const { isPlaying } = useEvent(
-    videoPlayer,
-    'playingChange',
-    { isPlaying: videoPlayer?.playing ?? false }
-  );
-
-  const { currentTime = 0 } = useEvent(
-    videoPlayer,
-    'timeUpdate',
-    { currentTime: videoPlayer?.currentTime ?? 0 }
-  );
-
-  const duration = videoPlayer?.duration ?? 0;
-
+  // Initialisation audio via AudioContext
   useEffect(() => {
-    if (!isSeeking) {
-      setSliderValue(currentTime);
-    }
-  }, [currentTime, isSeeking]);
+    if (!current) return;
+    stopSound().finally(() => {
+      playSound(current.audio, current.title);
+    });
+  }, [current?.id]);
 
+  // Nettoyage quand on quitte
   useEffect(() => {
-    loadMedia();
-
-    if (Platform.OS === 'android') {
-      NavigationBar.setVisibilityAsync('hidden').catch(console.error);
-      SystemUI.setBackgroundColorAsync('transparent').catch(console.error);
-    }
-
     return () => {
-      if (Platform.OS === 'android') {
-        NavigationBar.setVisibilityAsync('visible').catch(console.error);
-      }
+      stopSound();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log('[FullScreenPlayer] Screen focused');
-      return () => {
-        console.log('[FullScreenPlayer] Screen unfocused, cleaning up');
-        void cleanup();
-      };
-    }, [])
-  );
+  // Auto-hide des contrôles
+  const resetControlsTimer = () => {
+    if (controlsTimer.current) clearTimeout(controlsTimer.current);
+    controlsTimer.current = setTimeout(() => {
+      setControlsVisible(false);
+    }, 4000);
+  };
 
   useEffect(() => {
-    videoPlayerRef.current = videoPlayer;
-  }, [videoPlayer]);
-
-  useEffect(() => {
-    if (currentMedia) {
-      loadMedia();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMedia?.id]);
-
-  useEffect(() => {
-    if (showControls) {
-      fadeAnim.setValue(1);
-      if (!isLoadingVideo) {
-        resetControlsTimeout();
-      }
+    if (controlsVisible) {
+      Animated.timing(fade, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+      resetControlsTimer();
     } else {
-      Animated.timing(fadeAnim, {
+      Animated.timing(fade, {
         toValue: 0,
-        duration: 300,
+        duration: 250,
         useNativeDriver: true,
       }).start();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showControls, isLoadingVideo]);
+  }, [controlsVisible]);
 
-  const resetControlsTimeout = () => {
-    if (controlsTimeoutRef.current) {
-      clearTimeout(controlsTimeoutRef.current);
-    }
-    if (!isLoadingVideo) {
-      controlsTimeoutRef.current = setTimeout(() => {
-        setShowControls(false);
-      }, 4000);
-    }
+  const toggleControls = () => {
+    setControlsVisible((prev) => !prev);
   };
 
-  const handleScreenPress = () => {
-    setShowControls(prev => {
-      const newValue = !prev;
-      if (newValue && !isLoadingVideo) {
-        resetControlsTimeout();
-      }
-      return newValue;
-    });
-  };
-
-  const cleanup = async () => {
-    if (isCleaningUpRef.current) {
-      console.log('[FullScreenPlayer] Cleanup already in progress, skipping');
-      return;
-    }
-
-    isCleaningUpRef.current = true;
-    console.log('[FullScreenPlayer] Cleanup called');
-
-    if (soundRef.current) {
-      try {
-        console.log('[FullScreenPlayer] Stopping and unloading sound');
-        const soundToClean = soundRef.current;
-        soundRef.current = null;
-
-        try {
-          await soundToClean.setIsLoopingAsync(false);
-        } catch (e) {
-          console.log('[FullScreenPlayer] Error setting isLooping:', e);
-        }
-
-        try {
-          await soundToClean.pauseAsync();
-        } catch (e) {
-          console.log('[FullScreenPlayer] Error pausing sound:', e);
-        }
-
-        try {
-          await soundToClean.stopAsync();
-        } catch (e) {
-          console.log('[FullScreenPlayer] Error stopping sound:', e);
-        }
-
-        try {
-          await soundToClean.unloadAsync();
-        } catch (e) {
-          console.log('[FullScreenPlayer] Error unloading sound:', e);
-        }
-
-        console.log('[FullScreenPlayer] Sound cleaned up successfully');
-      } catch (error) {
-        console.error('[FullScreenPlayer] Error cleaning up sound:', error);
-      }
-    } else {
-      console.log('[FullScreenPlayer] No sound to cleanup');
-    }
-
-    try {
-      if (videoPlayerRef.current) {
-        videoPlayerRef.current.pause();
-        console.log('[FullScreenPlayer] Video paused');
-      }
-    } catch (error) {
-      console.log('[FullScreenPlayer] Error pausing video:', error);
-    }
-
-    setVideoSource(undefined);
-    console.log('[FullScreenPlayer] Video source cleared');
-
-    if (controlsTimeoutRef.current) {
-      clearTimeout(controlsTimeoutRef.current);
-      controlsTimeoutRef.current = null;
-    }
-
-    isCleaningUpRef.current = false;
-  };
-
-  const loadMedia = async () => {
-    if (!currentMedia) {
-      console.error('[FullScreenPlayer] No current media');
-      return;
-    }
-
-    console.log('[FullScreenPlayer] Loading media:', currentMedia.id);
-    console.log('[FullScreenPlayer] Video raw:', currentMedia.video);
-    console.log('[FullScreenPlayer] Audio raw:', currentMedia.audio);
-
-    console.log('[FullScreenPlayer] Cleaning up previous media...');
-    await cleanup();
-    console.log('[FullScreenPlayer] Cleanup complete, starting new media load');
-    setIsLoadingVideo(true);
-
-    try {
-      await Audio.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-      });
-
-      console.log('[FullScreenPlayer] Loading audio...');
-      const audioSource = await toSourceAsync(currentMedia.audio);
-      console.log('[FullScreenPlayer] Audio source after toSourceAsync:', audioSource);
-
-      if (!audioSource) {
-        console.error('[FullScreenPlayer] No audio source available after conversion');
-        console.error('[FullScreenPlayer] Original audio value:', currentMedia.audio);
-        console.error('[FullScreenPlayer] Audio type:', typeof currentMedia.audio);
-        setIsLoadingVideo(false);
-        return;
-      }
-
-      console.log(
-        '[FullScreenPlayer] Creating Audio.Sound with source:',
-        JSON.stringify(audioSource)
-      );
-      const { sound } = await Audio.Sound.createAsync(audioSource, {
-        isLooping: true,
-        volume: 1.0,
-        shouldPlay: true,
-      });
-      soundRef.current = sound;
-      await sound.playAsync();
-      console.log('[FullScreenPlayer] Audio started successfully');
-
-      console.log('[FullScreenPlayer] Loading video...');
-      const videoSourceResolved = await toSourceAsync(currentMedia.video);
-      console.log('[FullScreenPlayer] Video source after toSourceAsync:', videoSourceResolved);
-
-      if (videoSourceResolved) {
-        console.log('[FullScreenPlayer] Setting video source...');
-        if (typeof videoSourceResolved === 'object' && 'uri' in videoSourceResolved) {
-          const uriString = videoSourceResolved.uri;
-          console.log('[FullScreenPlayer] Using URI for video:', uriString);
-          setVideoSource({ uri: uriString });
-        } else if (typeof videoSourceResolved === 'string') {
-          console.log('[FullScreenPlayer] Using string URI for video:', videoSourceResolved);
-          setVideoSource({ uri: videoSourceResolved });
-        }
-        console.log('[FullScreenPlayer] Video loaded successfully');
-      } else {
-        console.log('[FullScreenPlayer] No video to load');
-      }
-
-      console.log('[FullScreenPlayer] Media loaded, showing controls');
-      setIsLoadingVideo(false);
-      setShowControls(true);
-      resetControlsTimeout();
-    } catch (error) {
-      console.error('[FullScreenPlayer] Error loading media:', error);
-      console.error('[FullScreenPlayer] Error details:', JSON.stringify(error, null, 2));
-      setIsLoadingVideo(false);
-    }
-  };
-
-  const handleStop = async () => {
-    console.log('[FullScreenPlayer] Stop button pressed');
-    await cleanup();
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/');
-    }
+  const handlePlayPause = () => {
+    if (isPlaying) pauseSound();
+    else playSound(current.audio, current.title);
   };
 
   const handleNext = () => {
-    if (!currentMedia) return;
-    const currentIndex = soundsConfig.findIndex(s => s.id === currentMedia.id);
-    if (currentIndex >= 0 && currentIndex < soundsConfig.length - 1) {
-      const nextMedia = soundsConfig[currentIndex + 1];
-      console.log('[FullScreenPlayer] Next media:', nextMedia.id);
-      setCurrentMedia(nextMedia);
+    if (currentIndex < soundsConfig.length - 1) {
+      stopSound();
+      setCurrentIndex((i) => i + 1);
     }
   };
 
-  const handlePrevious = () => {
-    if (!currentMedia) return;
-    const currentIndex = soundsConfig.findIndex(s => s.id === currentMedia.id);
+  const handlePrev = () => {
     if (currentIndex > 0) {
-      const prevMedia = soundsConfig[currentIndex - 1];
-      console.log('[FullScreenPlayer] Previous media:', prevMedia.id);
-      setCurrentMedia(prevMedia);
+      stopSound();
+      setCurrentIndex((i) => i - 1);
     }
   };
 
-  const handlePlayPause = async () => {
-    const player = videoPlayerRef.current;
-    const sound = soundRef.current;
-
-    try {
-      if (isPlaying) {
-        console.log('[FullScreenPlayer] Pausing media');
-        if (player) player.pause();
-        if (sound) await sound.pauseAsync();
-      } else {
-        console.log('[FullScreenPlayer] Resuming media');
-        if (player) player.play();
-        if (sound) await sound.playAsync();
-      }
-    } catch (error) {
-      console.error('[FullScreenPlayer] Error toggling play/pause:', error);
-    }
+  const handleStop = () => {
+    stopSound();
+    router.back();
   };
-
-  const handleSeekComplete = async (value: number | number[]) => {
-    const newTime = Array.isArray(value) ? value[0] : value;
-
-    setIsSeeking(false);
-
-    try {
-      if (videoPlayerRef.current) {
-        videoPlayerRef.current.currentTime = newTime;
-      }
-      if (soundRef.current) {
-        await soundRef.current.setPositionAsync(newTime * 1000);
-      }
-    } catch (error) {
-      console.error('[FullScreenPlayer] Error seeking:', error);
-    }
-  };
-
-  if (!currentMedia) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Média non trouvé</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
-      <StatusBar hidden translucent backgroundColor="transparent" />
+      <StatusBar hidden />
 
-      {Platform.OS === 'web' && videoSource ? (
-        <video
-          key={currentMedia.id}
-          style={{
-            width: width,
-            height: height,
-            objectFit: 'cover',
-          }}
-          src={
-            typeof videoSource === 'object' && 'uri' in videoSource
-              ? videoSource.uri
-              : ''
-          }
-          autoPlay
-          loop
-          muted
-          playsInline
-          onError={e => {
-            console.error('[FullScreenPlayer] Video error event:', e);
-            console.error('[FullScreenPlayer] Video source:', JSON.stringify(videoSource));
-            console.error('[FullScreenPlayer] Current media ID:', currentMedia.id);
-          }}
-          onLoadStart={() => {
-            console.log('[FullScreenPlayer] Video load started');
-          }}
-          onCanPlay={() => {
-            console.log('[FullScreenPlayer] Video can play');
-          }}
-        />
-      ) : videoSource ? (
-        <VideoView
-          style={styles.video}
-          player={videoPlayer}
-          nativeControls={false}
-          contentFit="cover"
-        />
-      ) : (
-        <View style={{ width, height, backgroundColor: '#0b0b0f' }} />
-      )}
-
-      {isLoadingVideo && (
-        <View style={styles.loadingOverlay}>
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Chargement...</Text>
-          </View>
-        </View>
-      )}
-
-      <Pressable
-        style={StyleSheet.absoluteFill}
-        onPress={handleScreenPress}
+      {/* VIDEO */}
+      <VideoView
+        player={videoPlayer}
+        style={styles.video}
+        contentFit="cover"
+        nativeControls={false}
       />
 
+      {/* Zone tactile */}
+      <Pressable style={StyleSheet.absoluteFill} onPress={toggleControls} />
+
+      {/* CONTROLS */}
       <Animated.View
-        style={[styles.overlay, { opacity: fadeAnim }]}
-        pointerEvents={showControls ? 'auto' : 'none'}
+        pointerEvents={controlsVisible ? "auto" : "none"}
+        style={[styles.controlsOverlay, { opacity: fade }]}
       >
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-          <View style={styles.headerContent}>
-            <View>
-              <Text style={styles.title}>{currentMedia.title}</Text>
-              <Text style={styles.description}>{currentMedia.description || ''}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={handleStop}
-              activeOpacity={0.8}
-            >
-              <X size={28} color="#FFFFFF" strokeWidth={2.5} />
-            </TouchableOpacity>
-          </View>
+        {/* TOP BAR */}
+        <View style={[styles.topBar, { top: insets.top + 16 }]}>
+          <Text style={styles.title}>{current.title}</Text>
+          <TouchableOpacity style={styles.closeBtn} onPress={handleStop}>
+            <X size={30} color="white" />
+          </TouchableOpacity>
         </View>
 
-        <View style={[styles.controls, { paddingBottom: insets.bottom + 32 }]}>
-          <View style={styles.progressContainer}>
-            <Text style={styles.timeText}>{formatTime(sliderValue)}</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={duration > 0 ? duration : 1}
-              value={sliderValue}
-              minimumTrackTintColor="#FFFFFF"
-              maximumTrackTintColor="rgba(255,255,255,0.3)"
-              thumbTintColor="#FFFFFF"
-              onSlidingStart={() => setIsSeeking(true)}
-              onValueChange={value => setSliderValue(Array.isArray(value) ? value[0] : value)}
-              onSlidingComplete={handleSeekComplete}
-            />
-            <Text style={styles.timeText}>{formatTime(duration)}</Text>
-          </View>
+        {/* MIDDLE PLAYBACK */}
+        <View style={[styles.middleControls, { marginBottom: insets.bottom + 40 }]}>
+          <TouchableOpacity
+            style={[styles.circleBtn, currentIndex === 0 && styles.disabled]}
+            onPress={handlePrev}
+            disabled={currentIndex === 0}
+          >
+            <SkipBack color="white" size={36} />
+          </TouchableOpacity>
 
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.controlButton}
-              onPress={handlePrevious}
-              activeOpacity={0.8}
-            >
-              <SkipBack size={32} color="#FFFFFF" fill="#FFFFFF" />
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.playBtn} onPress={handlePlayPause}>
+            {isPlaying ? (
+              <Pause size={40} color="black" />
+            ) : (
+              <Play size={40} color="black" />
+            )}
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.controlButton}
-              onPress={handlePlayPause}
-              activeOpacity={0.8}
-            >
-              {isPlaying ? (
-                <Pause size={32} color="#FFFFFF" />
-              ) : (
-                <Play size={32} color="#FFFFFF" />
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.controlButton}
-              onPress={handleNext}
-              activeOpacity={0.8}
-            >
-              <SkipForward size={32} color="#FFFFFF" fill="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.stopRow}>
-            <TouchableOpacity
-              style={[styles.controlButton, styles.stopButton]}
-              onPress={handleStop}
-              activeOpacity={0.8}
-            >
-              <X size={40} color="#FFFFFF" strokeWidth={3} />
-              <Text style={styles.stopText}>STOP</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={[
+              styles.circleBtn,
+              currentIndex === soundsConfig.length - 1 && styles.disabled,
+            ]}
+            onPress={handleNext}
+            disabled={currentIndex === soundsConfig.length - 1}
+          >
+            <SkipForward color="white" size={36} />
+          </TouchableOpacity>
         </View>
       </Animated.View>
     </View>
@@ -561,134 +175,54 @@ export function FullScreenPlayer({ initialMediaId }: FullScreenPlayerProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-  video: {
-    width: width,
-    height: height,
-  },
-  overlay: {
+  container: { flex: 1, backgroundColor: "black" },
+  video: { width, height },
+  controlsOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
-  header: {
-    paddingHorizontal: 24,
+  topBar: {
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  headerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  closeBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700' as const,
-    color: '#FFFFFF',
-    marginBottom: 8,
-    textShadowColor: 'rgba(0, 0, 0, 0.8)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+    color: "white",
+    fontSize: 22,
+    fontWeight: "800",
   },
-  description: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
-    textShadowColor: 'rgba(0, 0, 0, 0.8)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  closeButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 16,
-  },
-  controls: {
-    paddingHorizontal: 24,
-  },
-  progressContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-    gap: 8,
-  },
-  slider: {
-    flex: 1,
-  },
-  timeText: {
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 12,
-    minWidth: 40,
-    textAlign: 'center' as const,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+  middleControls: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     gap: 32,
   },
-  stopRow: {
-    marginTop: 24,
-    alignItems: 'center',
-  },
-  controlButton: {
+  circleBtn: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: "white",
+    backgroundColor: "rgba(0,0,0,0.50)",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  stopButton: {
+  disabled: { opacity: 0.3 },
+  playBtn: {
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: 'rgba(239, 68, 68, 0.4)',
-    borderColor: 'rgba(239, 68, 68, 0.6)',
-    gap: 4,
-  },
-  stopText: {
-    fontSize: 14,
-    fontWeight: '700' as const,
-    color: '#FFFFFF',
-    marginTop: -4,
-  },
-  errorContainer: {
-    flex: 1,
-    backgroundColor: '#000000',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontWeight: '600' as const,
-  },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-  },
-  loadingContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    paddingHorizontal: 32,
-    paddingVertical: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  loadingText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600' as const,
+    backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
