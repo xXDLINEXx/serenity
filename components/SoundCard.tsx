@@ -2,16 +2,15 @@ import React from "react";
 import { Pressable, Text, View, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useAudio } from "@/contexts/AudioContext"; // ✅ On ajoute ceci
+import { useAudio } from "@/contexts/AudioContext";
 
 interface SoundCardProps {
   id: string;
   title: string;
   description: string;
-  thumbnail: any;
+  thumbnail: string;      // 👉 URL = string
   gradient: string[];
   audioUrl?: string;
-  onPress?: () => void;
 }
 
 export default function SoundCard({
@@ -20,19 +19,16 @@ export default function SoundCard({
   description,
   thumbnail,
   gradient,
-  audioUrl,
 }: SoundCardProps) {
 
   const router = useRouter();
-  const { stopSound } = useAudio(); // ✅ On ajoute ça
+  const { stopSound } = useAudio();
 
   const handlePress = () => {
-    console.log("[SoundCard] Stopping all audio before opening:", id);
+    console.log("[SoundCard] Stopping audio before opening:", id);
 
-    // ✅ ARRÊTE LE SON FANTÔME AVANT OUVERTURE FULLSCREEN
-    stopSound();
+    stopSound(); // ⛔ ON STOPPE AVANT L’OUVERTURE
 
-    // 👉 Ensuite on ouvre le lecteur fullscreen
     router.push(`/fullscreen-player?mediaId=${id}`);
   };
 
@@ -59,7 +55,7 @@ export default function SoundCard({
         }}
       >
         <Image
-          source={thumbnail}
+          source={{ uri: thumbnail }}   // 🔥 FIX CRITIQUE
           style={{
             width: 70,
             height: 70,
