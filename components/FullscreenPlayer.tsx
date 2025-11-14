@@ -24,6 +24,7 @@ import Slider from "@react-native-community/slider";
 
 const { width, height } = Dimensions.get("window");
 
+// Formater le temps
 const formatTime = (seconds: number) => {
   if (!seconds || Number.isNaN(seconds)) return "0:00";
   const m = Math.floor(seconds / 60);
@@ -31,40 +32,34 @@ const formatTime = (seconds: number) => {
   return `${m}:${s.toString().padStart(2, "0")}`;
 };
 
+/* ---------------------------------------------------------
+   🔥 VERSION FINALE SANS CRASH DU toSourceAsync()
+   --------------------------------------------------------- */
 async function toSourceAsync(src) {
   if (!src) return undefined;
 
-  // Cas 1 : require() local → number
+  // Cas 1 — asset local require() (module number)
   if (typeof src === "number") {
     try {
       const asset = Asset.fromModule(src);
       await asset.downloadAsync().catch(() => {});
       return { uri: asset.uri };
     } catch (e) {
-      console.log("Failed local asset:", e);
+      console.log("Local asset error:", e);
+      return undefined;
     }
   }
 
-  // Cas 2 : URI complète http ou https (Metro, remote…)
+  // Cas 2 — string (chemin relatif ou URL Metro)
   if (typeof src === "string") {
-    if (src.startsWith("http://") || src.startsWith("https://")) {
-      return { uri: src };
-    }
-
-    // Cas 3 : chemin relatif "../media/..."
-    try {
-      const required = require(src);
-      const asset = Asset.fromModule(required);
-      await asset.downloadAsync().catch(() => {});
-      return { uri: asset.uri };
-    } catch (_) {
-      // fallback → utilise la string comme URI
-      return { uri: src };
-    }
+    // Metro génère des URLs http://... donc on renvoie tel quel
+    return { uri: src };
   }
 
-  // Cas 4 : objet { uri }
-  if (typeof src === "object" && src.uri) return { uri: src.uri };
+  // Cas 3 — objet { uri }
+  if (typeof src === "object" && src.uri) {
+    return { uri: src.uri };
+  }
 
   return undefined;
 }
@@ -87,6 +82,7 @@ export function FullScreenPlayer({ initialMediaId }) {
   const soundRef = useRef(null);
   const isCleaningRef = useRef(false);
 
+  // Vidéo player
   const videoPlayer = useVideoPlayer(videoSource, (player) => {
     if (videoSource) {
       player.loop = true;
@@ -101,6 +97,7 @@ export function FullScreenPlayer({ initialMediaId }) {
   const { isPlaying } = useEvent(videoPlayer, "playingChange", {
     isPlaying: videoPlayer?.playing ?? false,
   });
+
   const { currentTime = 0 } = useEvent(videoPlayer, "timeUpdate", {
     currentTime: videoPlayer?.currentTime ?? 0,
   });
@@ -112,7 +109,7 @@ export function FullScreenPlayer({ initialMediaId }) {
     if (!isSeeking) setSliderValue(currentTime);
   }, [currentTime, isSeeking]);
 
-  // Setup on mount
+  // Load media at mount
   useEffect(() => {
     loadMedia();
 
@@ -167,16 +164,16 @@ export function FullScreenPlayer({ initialMediaId }) {
     };
   }, [showControls]);
 
-  const handleScreenPress = () => setShowControls((p) => !p);
+  const handleScreenPress = () => setShowControls((prev) => !prev);
 
-  // ===========================================================
-  // CLEANUP AUDIO + VIDEO
-  // ===========================================================
+  /* ---------------------------------------------------------
+      CLEANUP AUDIO + VIDEO
+     --------------------------------------------------------- */
   const cleanup = async () => {
     if (isCleaningRef.current) return;
     isCleaningRef.current = true;
 
-    // Stop audio
+    // Stop audio (parfait)
     if (soundRef.current) {
       const s = soundRef.current;
       soundRef.current = null;
@@ -203,12 +200,13 @@ export function FullScreenPlayer({ initialMediaId }) {
     } catch (_) {}
 
     setVideoSource(undefined);
+
     isCleaningRef.current = false;
   };
 
-  // ===========================================================
-  // LOAD MEDIA (audio OR frequency)
-  // ===========================================================
+  /* ---------------------------------------------------------
+      LOAD MEDIA
+     --------------------------------------------------------- */
   const loadMedia = async () => {
     await cleanup();
 
@@ -240,9 +238,9 @@ export function FullScreenPlayer({ initialMediaId }) {
     }
   };
 
-  // ===========================================================
-  // BUTTONS
-  // ===========================================================
+  /* ---------------------------------------------------------
+      CONTROLS
+     --------------------------------------------------------- */
   const handleStop = async () => {
     await cleanup();
     router.back();
@@ -389,12 +387,15 @@ export function FullScreenPlayer({ initialMediaId }) {
   );
 }
 
+/* ---------------------------------------------------------
+   STYLES
+   --------------------------------------------------------- */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
   video: { width, height },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.3)",
+    backgroundColor: "rgba(0,0,0,0.35)",
     justifyContent: "space-between",
   },
   header: { paddingHorizontal: 24 },
