@@ -11,14 +11,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SoundCard } from '@/components/SoundCard';
+import SoundCard from '@/components/SoundCard';   // ✅ FIX : import default SANS { }
 import { LinearGradient } from 'expo-linear-gradient';
 import { soundsConfig } from '@/constants/soundsConfig';
 import { healingFrequencies } from '@/constants/frequencies';
 import { useAudio } from '@/contexts/AudioContext';
 import { Pause, Play, X } from 'lucide-react-native';
-
-
 
 const getFrequencyImage = (frequencyId: string): string => {
   const imageMapping: { [key: string]: string } = {
@@ -100,6 +98,7 @@ type Section = 'sounds' | 'frequencies';
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const pulseAnim = React.useRef(new Animated.Value(1)).current;
+
   const { isPlaying, currentTitle, pauseSound, stopSound, playSound } = useAudio();
   const [activeSection, setActiveSection] = useState<Section>('sounds');
 
@@ -139,7 +138,7 @@ export default function HomeScreen() {
       />
       <View style={{ backgroundColor: '#0A1628', height: insets.top }} />
       <StatusBar barStyle="light-content" />
-      
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.contentContainer, { paddingBottom: insets.bottom + 32 }]}
@@ -168,6 +167,7 @@ export default function HomeScreen() {
               Sons
             </Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.sectionButton, activeSection === 'frequencies' && styles.sectionButtonActive]}
             onPress={() => setActiveSection('frequencies')}
@@ -197,7 +197,6 @@ export default function HomeScreen() {
         ) : (
           <View style={styles.grid}>
             {healingFrequencies.map((freq) => {
-              console.log(`[Frequency] ${freq.title}: ${freq.audioUrl}`);
               const frequencyImage = getFrequencyImage(freq.id);
               return (
                 <View key={freq.id} style={styles.gridItem}>
@@ -225,7 +224,9 @@ export default function HomeScreen() {
             end={{ x: 1, y: 1 }}
           >
             <View style={styles.miniPlayerContent}>
-              <Text style={styles.miniPlayerTitle} numberOfLines={1}>{currentTitle}</Text>
+              <Text style={styles.miniPlayerTitle} numberOfLines={1}>
+                {currentTitle}
+              </Text>
               <View style={styles.miniPlayerControls}>
                 <TouchableOpacity
                   onPress={async () => {
@@ -234,7 +235,7 @@ export default function HomeScreen() {
                     } else {
                       const currentSound = soundsConfig.find(s => s.title === currentTitle);
                       const currentFreq = healingFrequencies.find(f => f.title === currentTitle);
-                      
+
                       if (currentSound && typeof currentSound.audio === 'string') {
                         await playSound(currentSound.audio, currentSound.title);
                       } else if (currentFreq && typeof currentFreq.audioUrl === 'string') {
@@ -250,6 +251,7 @@ export default function HomeScreen() {
                     <Play size={24} color="#FFFFFF" fill="#FFFFFF" />
                   )}
                 </TouchableOpacity>
+
                 <TouchableOpacity
                   onPress={() => stopSound()}
                   style={styles.miniPlayerButton}
@@ -293,7 +295,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#9CA3AF',
-    textAlign: 'center' as const,
+    textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: 32,
     maxWidth: 400,
@@ -323,7 +325,7 @@ const styles = StyleSheet.create({
   },
   sectionButtonText: {
     fontSize: 16,
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: '#9CA3AF',
   },
   sectionButtonTextActive: {
@@ -339,7 +341,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   miniPlayer: {
-    position: 'absolute' as const,
+    position: 'absolute',
     left: 16,
     right: 16,
     borderRadius: 16,
@@ -361,7 +363,7 @@ const styles = StyleSheet.create({
   miniPlayerTitle: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: '#FFFFFF',
     marginRight: 16,
   },
